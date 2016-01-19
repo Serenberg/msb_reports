@@ -1,0 +1,1202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-08-28T14:42:46 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="QUESTIONNAIRE_FATCA_ID" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="422122c3-6d29-457f-ad9a-cb7b7772f73c">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[select dc.last_name || ' '||dc.first_name || ' '||dc.middle_name -- ФИО клиента -- 000
+       
+      ,
+       dc.Iin --ИИН  000
+      ,
+       
+       nvl(rco.caption,' ') || ',  ' || nvl(rc.caption,' ') || ',  ' || nvl(aa3.street,' ') || '  ' ||
+ (case when aa3.house is null  then ''
+ 	else 'д. ' || aa3.house || ', '
+ 	end  ) || 
+ 	(case when aa3.house is null  then ''
+ 	else 'корп. ' || aa3.corps || ', '
+ 	end  )
+ 	 || (case when aa3.house is null  then ''
+ 	else 'ст. ' || aa3.building || ', '
+ 	end  ) 
+   || (case when aa3.house is null  then ''
+ 	else 'кв. ' || aa3.flat
+ 	end 
+ ) as rcAddr -- Адрес по мету прописки 000  
+      /*,
+      rco1.caption || ', ' || rc1.caption || ', ' || aa2.street ||
+       nvl(aa2.house, aa2.flat) as rc1Addr ---- Адрес факт. прожив 000
+      ,*/
+      
+      ,(case when dc.IS_REAL_ADDRESS = 1 then 
+        rco.caption || ',' || rc.caption || ', ' || aa3.street || ' ' ||
+      nvl(rco.caption,' ') || ',  ' || nvl(rc.caption,' ') || ',  ' || nvl(aa3.street,' ') || ',  ' ||
+ (case when aa3.house is null  then ''
+ 	else 'д. ' || aa3.house || ', '
+ 	end  ) || 
+ 	(case when aa3.house is null  then ''
+ 	else 'корп. ' || aa3.corps || ', '
+ 	end  )
+ 	 || (case when aa3.house is null  then ''
+ 	else 'ст. ' || aa3.building || ', '
+ 	end  ) 
+   || (case when aa3.house is null  then ''
+ 	else 'кв. ' || aa3.flat
+ 	end 
+ )
+        else
+        rco1.caption || ', ' || rc1.caption || ', ' || aa2.street || ' ' ||
+       (case when aa2.house is null  then ''
+ 	else 'д. ' || aa2.house || ', '
+ 	end  ) || 
+ 	(case when aa2.house is null  then ''
+ 	else 'корп. ' || aa2.corps || ', '
+ 	end  )
+ 	 || (case when aa2.house is null  then ''
+ 	else 'ст. ' || aa2.building || ', '
+ 	end  ) 
+   || (case when aa2.house is null  then ''
+ 	else 'кв. ' || aa2.flat
+ 	end 
+ )
+   end) as rc1Addr, -- Адрес по мету прописки !!
+      
+      
+      
+       dc.MOBILE_PHONE1, -- моб 1     
+       up.lastname ||' '|| up.firstname, -- KM
+       up.POSITION, -- Должность
+       to_char(sysdate,'dd.mm.yyyy'),
+       nvl(rco2.caption,' ') as   incountry,-- Ин. гос-во
+       nvl(dc.FR_TAX_NUMBER,' ') as innumb,-- Иностранный налоговый номер
+       (case when dc.FR_IS_VISITED_USA = 1 then 'V'
+       	else null
+       	end
+       )  as us_ar_m_hy ,
+       (case when dc.FR_IS_TAX_PAYER = 1 then 'V'
+       	else null
+       	end
+       ) as nalog_in_gov,
+       (case when dc.FR_IS_RESIDENT = 1 then 'V'
+       	else null
+       	end
+       ) as in_resident
+       
+       
+
+-- 16 этап
+  from doc_cl       dc
+  
+    LEFT JOIN (select *
+                from (select a.assignee_, b.text_,a.end_time_, row_number() over (partition by b.text_ order by b.text_,a.end_time_ ) as rw
+                        from act_hi_taskinst a
+                          inner join act_ru_variable b on b.proc_inst_id_ = a.proc_inst_id_
+                       where b.name_ = 'recordId'
+                         and a.task_def_key_ = 'STAGE_NUMBER_190'
+                        order by b.text_,a.end_time_ desc) w
+               where w.rw = 1) bb
+
+    on to_char(dc.id) = bb.text_
+  
+    LEFT JOIN USER_PROFILE    up  on bb.assignee_ = up.login ---- МРКК
+       
+     
+  LEFT JOIN USER_PROFILE    up  on bb.assignee_ = up.login ---- МРКК
+    left JOIN ADDRESSES       aa3 on dc.ADDRESS_ID = aa3.id -- рег
+    left JOIN ADDRESSES       aa2 on dc.REAL_ADDRESS_ID = aa2.id -- факт. прожив
+
+    left JOIN REF_CITY        rc on aa3.city_id = rc.id
+    left JOIN REF_CITY        rc1 on aa2.city_id = rc1.id
+    left JOIN ref_country     rco on aa3.country_id = rco.id
+    left JOIN ref_country     rco1 on aa2.country_id = rco1.id
+    left JOIN ref_country     rco2 on dc.FR_TAX_COUNTRY_ID=rco2.id
+     
+
+
+ where dc.id= $P{Идентификатор}]]>
+	</queryString>
+	<field name="DC.LAST_NAME||&apos;&apos;||DC.FIRST_NAME||&apos;&apos;||DC.MIDDLE_NAME--ФИОКЛИЕНТА--000" class="java.lang.String"/>
+	<field name="IIN" class="java.lang.String"/>
+	<field name="RCADDR" class="java.lang.String"/>
+	<field name="RC1ADDR" class="java.lang.String"/>
+	<field name="MOBILE_PHONE1" class="java.lang.String"/>
+	<field name="UP.LASTNAME||&apos;&apos;||UP.FIRSTNAME" class="java.lang.String"/>
+	<field name="POSITION" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;DD.MM.YYYY&apos;)" class="java.lang.String"/>
+	<field name="INCOUNTRY" class="java.lang.String"/>
+	<field name="INNUMB" class="java.lang.String"/>
+	<field name="US_AR_M_HY" class="java.lang.String"/>
+	<field name="NALOG_IN_GOV" class="java.lang.String"/>
+	<field name="IN_RESIDENT" class="java.lang.String"/>
+	<group name="Group1" isStartNewPage="true">
+		<groupHeader>
+			<band>
+				<property name="local_mesure_unitheight" value="pixel"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</band>
+		</groupHeader>
+	</group>
+	<detail>
+		<band height="821" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="75" y="69" width="415" height="20" uuid="f635d86b-9bd4-4e14-a6fe-9875b2a22a25">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Анкета клиента  –  физического лица]]></text>
+			</staticText>
+			<frame>
+				<reportElement positionType="Float" x="10" y="102" width="551" height="75" uuid="9415b3b5-b2b5-41df-827a-a2eb4b783d4d"/>
+				<frame>
+					<reportElement positionType="Float" x="0" y="0" width="551" height="15" uuid="6bd84aea-8559-4214-a675-c4fb0db943bd"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="270" height="15" uuid="a9a6c9c2-8153-426e-8040-4b8a581db282">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="10" isBold="true"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<text><![CDATA[Фамилия, имя и отчество]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="270" y="0" width="281" height="15" uuid="dfe2b3fa-45ef-4936-a311-e23457f04966"/>
+						<box>
+							<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{DC.LAST_NAME||''||DC.FIRST_NAME||''||DC.MIDDLE_NAME--ФИОКЛИЕНТА--000}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="15" width="551" height="15" uuid="33740940-f9c0-413f-81ad-7a3895eda1f0"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="270" height="15" uuid="11d9388c-97ae-4800-a850-56df7642ee79">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="10" isBold="true"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<text><![CDATA[ИИН ]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="270" y="0" width="281" height="15" uuid="887342be-0f40-41b9-b7ec-5fdc4dc89762">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{IIN}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="30" width="551" height="15" uuid="c6b686bb-37bf-4db5-b4c7-b3d3ca1d16a8"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="270" height="15" uuid="ca4bddb9-4df3-44d8-bf24-9800e1447346">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="10" isBold="true"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<text><![CDATA[Адрес регистрации]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="270" y="0" width="281" height="15" uuid="cabc78b0-64d1-40bd-86e5-d1448ab15cbd">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{RCADDR}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="45" width="551" height="15" uuid="5ddc9bd4-f277-47a3-827c-6d2c77ce9992"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="270" height="15" uuid="a853fadb-c563-4389-a944-b7ec9e388c22">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="10" isBold="true"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<text><![CDATA[Адрес места проживания]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="270" y="0" width="281" height="15" uuid="cd8b2d94-2c47-49b7-a259-259fe5ad2705">
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement>
+							<font fontName="Times New Roman" size="10"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{RC1ADDR}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="60" width="551" height="15" uuid="1bc6e56c-2a6f-4242-92ad-288d0412e5f8"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="270" height="15" uuid="78a7cb32-0e71-4157-ac09-a8fa1e9b0098">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Left" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="10" isBold="true"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<text><![CDATA[Номера телефонов]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="270" y="0" width="281" height="15" uuid="1c327ab4-3d7b-4411-924f-dbffe5282641">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[($F{MOBILE_PHONE1} != null ? $F{MOBILE_PHONE1} : "")]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="177" width="550" height="152" uuid="ac514cad-3439-479f-8130-ec87857adceb"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="91" width="249" height="30" uuid="78919c82-4c12-4407-8bd9-c4cac59a880a">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box leftPadding="0">
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Наименование иностранного государства/международной организации]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="121" width="249" height="15" uuid="4653ba57-1e6d-440c-bcc4-404da2edc270">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="136" width="249" height="15" uuid="c15bcf9b-7fc7-458c-be66-c30e032f8d12">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="249" y="91" width="164" height="30" uuid="3af09b8c-bc6d-449b-b798-acd834df7f81">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Должность]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="249" y="121" width="164" height="15" uuid="9c154a1d-5b83-46c9-b49e-f00f06c25c4f">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="249" y="136" width="164" height="15" uuid="b01be0e6-ff53-4710-9c22-a0f0562a6b31">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="false"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="413" y="91" width="137" height="30" uuid="a69e0ee2-b7ca-4a33-abcf-66f272e515b2">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Срок занимаемой должности ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="413" y="121" width="137" height="15" uuid="7dddce97-e27c-48ea-8b3d-fb526133b4dd">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="false"/>
+					</textElement>
+					<text><![CDATA[с __________ по ________]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="413" y="136" width="137" height="15" uuid="88bc6eeb-73a7-4354-a4a9-771bcd43536d">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="false"/>
+					</textElement>
+					<text><![CDATA[с __________ по ________]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="2" width="546" height="28" uuid="c48ff00d-a5a6-48fb-ac90-ac0ad0c19941"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Часть 1. Принадлежность (аффилиированность) Клиента к публичному должностному лицу иностранного государства и/или международной организации *"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="30" width="545" height="20" uuid="fa8b84ac-c35c-4783-98f6-0481f16e93e7"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["1.1.Являетесь или являлись ли Вы публичным должностным лицом  иностранного государства и/или международной"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="86" y="46" width="11" height="11" uuid="3bd9a586-c11c-4648-8663-63683e6769da">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box leftPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="158" y="47" width="25" height="13" uuid="48844904-05dd-4f1e-a692-1177c01efcbf"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Да"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="105" y="47" width="25" height="13" uuid="32fe4833-39f2-422a-aafd-b57fc22edf6a"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Нет"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="139" y="46" width="11" height="11" uuid="a8659122-b428-4586-8014-62ba4ae628fe">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="45" width="80" height="20" uuid="acf8dc56-47de-4497-a037-0aea185d1632"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["организации? "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="61" width="544" height="30" uuid="5dbaf254-30c4-45d4-975a-c5ffca3b0c2f"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Если да, заполните таблицу ниже и укажите источники происхождения денег, с которыми будут производиться банковские операции)"]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="335" width="551" height="174" uuid="8a22b023-cbb3-4d30-81ce-55c716d9fa9f"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="551" height="20" uuid="4f393d07-3635-4414-b801-912eec4a14a6"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Источники происхождения денег для проведения банковских операций"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="10" width="551" height="20" uuid="841a5dba-01db-4c80-899f-cb8d70ad0c4f"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="34" width="551" height="15" uuid="f8b3e3d2-c475-4fd1-a196-00147fac75e7"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["1.2. Являетесь ли Вы членом семьи, родственником и (или) представителем публичного должностного лица иностранного"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="50" width="220" height="20" uuid="7332d918-b17d-4940-8978-8b6104b94906"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["государства и/или международной организации"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="220" y="51" width="11" height="11" uuid="f2022bca-03ee-49f6-9821-d15e2c541f67">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box leftPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="239" y="52" width="25" height="13" uuid="ba1f154e-b90f-48be-b50a-c3566c82c6bb"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Нет"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="69" width="546" height="20" uuid="9f53fb5e-b6cc-41e4-b292-e238105a1b2f"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Если да, укажите аффилиированность, ФИО и должность публичного должностного лица."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="80" width="551" height="20" uuid="353cdec0-bf7b-4ef4-bfa7-0f6e47971591"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="102" width="551" height="15" uuid="3ea3f2bc-2b8e-4cb2-b289-f661e61c6579"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Часть 2. Принадлежность к налоговому резидентству других стран  (заполняется в случаях открытия банковского счета)"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="115" width="335" height="20" uuid="2aa74d0f-2c61-40d2-b1bf-b9737642498e"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["2.1. Являетесь ли Вы налоговым резидентом иностранного государства?"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="337" y="116" width="11" height="11" uuid="69fa66e6-8967-4165-9a0e-9ed05250de9c">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box leftPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{NALOG_IN_GOV} != null ? "" : "V"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="356" y="117" width="25" height="13" uuid="586cb255-2de2-4043-83eb-a51d0df42832"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Нет"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="273" y="51" width="11" height="11" uuid="2685247d-ca4e-4af3-a7ae-bcd3d0a47b59">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="292" y="52" width="25" height="13" uuid="bc47bfeb-78c9-4adc-92f3-70be51089afa"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Да"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="405" y="117" width="25" height="13" uuid="025d903a-b510-4b6b-8109-c11fd33ef50d"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Да"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="386" y="116" width="11" height="11" uuid="828c00f5-549d-4246-a273-c0c34747093b">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{NALOG_IN_GOV} != null ? "V" : ""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="140" width="551" height="30" uuid="6f02dcd4-1de9-4e71-b2b7-967930580d66"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Если да, укажите наименование иностранного государства  и Ваш идентификационный номер иностранного налогоплательщика."]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="512" width="550" height="30" uuid="a663eb2d-40a6-4602-b739-93c4bbb8f934"/>
+				<staticText>
+					<reportElement positionType="Float" x="180" y="0" width="370" height="15" uuid="4b198ff7-d9e8-4714-a167-3edb7e2701d3">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Идентификационный номер налогоплательщика]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="180" height="15" uuid="206df225-5794-45a5-a337-def7fb90d3cb">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Наименование страны]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="15" width="180" height="15" uuid="8acf8a5a-2534-47bf-9eea-e0e7e659bd6c"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{INCOUNTRY} != null ? $F{INCOUNTRY} : "")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="180" y="15" width="370" height="15" uuid="eb47ef71-5908-4b71-bbf9-83f16c042436"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{INNUMB} != null ? $F{INNUMB} : "")]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="9" y="542" width="552" height="148" uuid="1432fc4f-629b-4b65-90cb-68be58a9daa5"/>
+				<frame>
+					<reportElement x="161" y="116" width="259" height="32" uuid="0787c16f-ff9c-4de6-9f09-0c90c1b63772"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="258" height="21" uuid="9babe396-d574-4c06-a793-6adb99e092f5"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+						<textElement verticalAlignment="Bottom">
+							<font fontName="Times New Roman" size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{DC.LAST_NAME||''||DC.FIRST_NAME||''||DC.MIDDLE_NAME--ФИОКЛИЕНТА--000}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="21" width="259" height="11" uuid="488986cd-4ca0-4267-8655-dda1fb74625e">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[ФИО Заемщика]]></text>
+					</staticText>
+				</frame>
+				<frame>
+					<reportElement x="431" y="117" width="121" height="31" uuid="31a6be42-a71f-44b3-8fdc-3db30f083521"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="20" width="121" height="11" uuid="aa2496a1-ec5a-4330-baee-3fa7f157ea2f">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center" verticalAlignment="Top">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[подпись]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="120" height="18" uuid="3ad8c5b8-55eb-498d-8e1b-f4d0de5a383f"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement x="0" y="115" width="140" height="33" uuid="26e083bc-fc5c-4d3e-8285-34a4b2b40319"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="22" width="140" height="11" uuid="d979222e-45fc-4fb2-969d-419fdb23647d">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center" verticalAlignment="Top">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[дата]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="140" height="20" uuid="b806abd4-c411-4d52-a968-75fc663ba8d6"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{TO_CHAR(SYSDATE,'DD.MM.YYYY')}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="4" width="299" height="15" uuid="aeb8314f-84ad-4078-b606-ecad6bf9345c"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["2.2. Имеете ли Вы вид на жительство в иностранном государстве?"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="307" y="4" width="11" height="11" uuid="e2562b0b-8ca5-4a0f-971d-fedab5ab11a5">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box leftPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{IN_RESIDENT} != null ? ""  : "V"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="326" y="5" width="25" height="13" uuid="60822da9-45be-40a4-91e7-28bf75b1450a"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Нет"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="356" y="4" width="11" height="11" uuid="f44013c3-e0ea-4802-90f7-73256cd0802f">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{IN_RESIDENT} != null ? "V"  : ""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="375" y="5" width="25" height="13" uuid="ca0623ec-9c20-4f09-a61f-3e1e1ea9a0fb"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Да"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="20" width="260" height="15" uuid="38a6b507-7b52-4e86-9b62-ae8b00f0f758"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Если да, приложите копию подтверждающего документа."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="34" width="549" height="25" uuid="8e203455-266c-4f51-8ab5-9b5d20672038"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["2.3. Пребывали ли Вы на территории США более 30 дней в течение текущего календарного года и более 182 дней в течение 3 лет, включая текущий год и два непосредственно предшествующих года,  кроме поездок с целью обучения и научных "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="60" width="65" height="15" uuid="21831010-1f30-461a-8cf5-f8880b956ac1"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["стажировок?"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="69" y="60" width="11" height="11" uuid="0e0075bf-3bce-4175-8d69-5d8b7d3b05c6">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box leftPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{US_AR_M_HY} != null ? "": "V"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="88" y="61" width="25" height="13" uuid="bd11c19b-4258-4bc7-b2be-1f33959dae81"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Нет"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="118" y="60" width="11" height="11" uuid="8b2bfa90-913e-42c5-a19f-09317fae4d30">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{US_AR_M_HY} != null ? "V": ""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="137" y="61" width="25" height="13" uuid="15ba8dfc-80ec-4e8c-a22c-d0fc7187dd8e"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Да"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="77" width="545" height="23" uuid="3e35f891-7a81-478f-bf2b-e8c5d84b4572"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["При изменении сведений, указанных в Анкете, обязуюсь в течение 10-ти календарных дней предоставить в Банк новые сведения."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="100" width="545" height="19" uuid="7a512669-9e7a-4f7a-bda4-bd75d6d06763"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Достоверность представленных мною сведений в настоящей Анкете подтверждаю"]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="9" y="690" width="550" height="131" uuid="890d12b6-f899-4a6d-8109-16b42e31fd0b">
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<frame>
+					<reportElement positionType="Float" x="1" y="41" width="100" height="28" uuid="ac10dd5c-5605-4a5d-bd92-b0a98097b56b"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="16" width="100" height="12" uuid="1e0bae2d-600f-4af4-b574-b84fbf84d580">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center" verticalAlignment="Top">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[дата]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="1" y="0" width="99" height="15" uuid="5cd21a24-699b-4fe2-91f5-a7e036b8ee66"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{TO_CHAR(SYSDATE,'DD.MM.YYYY')}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="0" width="550" height="38" uuid="684ea13f-41bd-483d-a2b2-a7d4971befed"/>
+					<staticText>
+						<reportElement positionType="Float" x="1" y="20" width="549" height="16" uuid="a8f87d1f-2830-41ca-9bec-2bc7bddd1bef">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9" isBold="true"/>
+						</textElement>
+						<text><![CDATA[ОТМЕТКИ БАНКА]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="548" height="18" uuid="653ace74-739e-4fb2-b410-ab8aa1e83b83"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="235" y="41" width="206" height="27" uuid="a4617ae6-5ba0-41be-8cd3-152475c3260a"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="206" height="15" uuid="2bfcd643-08e7-4743-880a-9fc9e0f466de"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{UP.LASTNAME||''||UP.FIRSTNAME}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="15" width="206" height="12" uuid="27d602bd-8f7e-4a26-b654-88c92488e4f0">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[ФИО]]></text>
+					</staticText>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="451" y="38" width="98" height="31" uuid="0e7513ca-1f73-42b7-b043-815e3cb946fc"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="19" width="98" height="12" uuid="cf3dfae1-79eb-4df7-85d5-a3f34702a0d0">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center" verticalAlignment="Top">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[подпись]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="98" height="18" uuid="562ef08e-d9e1-4916-a1c9-7ad19af6ee54"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="108" y="41" width="120" height="28" uuid="a37b3ed3-8f57-4c85-9539-2dbcafa1d560"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="120" height="15" uuid="1bc21300-a415-43fa-8e65-96acdae3c73d">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{POSITION}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="16" width="120" height="12" uuid="68292484-df64-45c9-9b45-e91507d38ba2">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Center">
+							<font fontName="Times New Roman" size="8" isBold="false" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[Должность работника Банка]]></text>
+					</staticText>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="1" y="76" width="548" height="48" uuid="fbded418-1dea-44c7-8290-aee35284c5b8"/>
+					<textField>
+						<reportElement x="0" y="0" width="548" height="48" uuid="4df72dac-6f52-467c-a4ff-54769e22a44b"/>
+						<box topPadding="0" leftPadding="0"/>
+						<textElement>
+							<font fontName="Times New Roman" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA["* ИПДЛ (иностранное публичное должностное лицо) - лицо, назначаемое или избираемое, занимающее какую-либо должность в законодательном, исполнительном, административном или судебном органе иностранного государства, а также любое лицо, выполняющее какую-либо публичную функцию для иностранного государства. Принадлежность к ИПДЛ определяется в случае, если лицо является либо занимало должность публичного должностного лица иностранного государства/международной организации, также, в случае, если лицо является членом семьи, родственником или представителем публичного должностного лица иностранного государства/международной организации."]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+			<image onErrorType="Icon">
+				<reportElement x="0" y="0" width="168" height="60" uuid="8dccf8ba-4ecc-40b0-b207-b747ab98c1d1"/>
+				<imageExpression><![CDATA["/printForms/alfa.png"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

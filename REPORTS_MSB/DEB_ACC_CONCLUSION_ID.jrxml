@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-08-21T10:00:36 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DEB_ACC_CONCLUSION_ID" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="0246d0ce-32c2-489c-a002-49d084a74ae9">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[select dc.last_name ||' '||dc.first_name ||' '||dc.middle_name as cl_fio,
+       to_char(sysdate, 'dd'),
+       decode(to_char(sysdate, 'mm'),
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря')  as ddd,
+       to_char(sysdate, 'yyyy'),
+       (case 
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            dc.sum_cr_refinanc
+            end) / dc.cr_sum_approved * dc.commission as COMMISSION, --коммиссия за организацию займа
+       nvl(acc.acc_num,' ') as acc,   -- текущий счет
+       '(' || speller.spell((case when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            dc.sum_cr_refinanc
+            end) / dc.cr_sum_approved * dc.commission) || ')' as sum_rus
+
+-- 16 этап
+  from doc_cl dc
+
+  LEFT JOIN (select *
+                from (select a.assignee_, b.text_,a.end_time_, row_number() over (partition by b.text_ order by b.text_,a.end_time_ ) as rw
+                        from act_hi_taskinst a
+                          inner join act_ru_variable b on b.proc_inst_id_ = a.proc_inst_id_
+                       where b.name_ = 'recordId'
+                         and a.task_def_key_ = 'STAGE_NUMBER_190'
+                        order by b.text_,a.end_time_ desc) w
+               where w.rw = 1) bb
+
+    on to_char(dc.id) = bb.text_
+  
+  LEFT JOIN USER_PROFILE    up  on bb.assignee_ = up.login ---- МРКК
+  LEFT JOIN DOC_CHECK_ABIS_ACC acc on  dc.CHECK_ABIS_ACC_ID = acc.id
+--    LEFT JOIN reg_cr_abis b on b.id =  dc.reg_cr_abis_id
+where dc.id=  $P{Идентификатор}]]>
+	</queryString>
+	<field name="CL_FIO" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;DD&apos;)" class="java.lang.String"/>
+	<field name="DDD" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;YYYY&apos;)" class="java.lang.String"/>
+	<field name="COMMISSION" class="java.math.BigDecimal"/>
+	<field name="ACC" class="java.lang.String"/>
+	<field name="SUM_RUS" class="java.lang.String"/>
+	<detail>
+		<band height="770" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="210" y="48" width="369" height="15" uuid="190b3399-3c7b-4041-b2f6-54073bf5863f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[АО ДБ «Альфа-Банк»]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="123" width="369" height="15" uuid="10df7df1-56a3-4bb3-801e-8b65401b9ee9">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Заявление на прямое дебетование счета]]></text>
+			</staticText>
+			<frame>
+				<reportElement positionType="Float" x="10" y="165" width="555" height="15" uuid="08d4fa27-e890-4467-81e9-1e5a9a842c31"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="555" height="15" uuid="6466b113-e0b7-4e18-9f41-60ecc1ee0a93">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Я, "+$F{CL_FIO}+", даю согласие на прямое дебетование моего счета "+ $F{ACC} +"  для оплаты комиссий Банка в сумме "+$F{COMMISSION}+" "+$F{SUM_RUS}+"  тенге."]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="11" y="240" width="553" height="30" uuid="5f286615-de1d-4772-b926-44f0dfa96514"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" x="0" y="0" width="553" height="15" uuid="f34082bb-c6f1-4469-8e22-eca4a2172bd3">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{CL_FIO}+"_________________________________(подпись)"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement positionType="Float" x="0" y="15" width="553" height="15" uuid="98c68114-5f00-45b0-940e-52616d97f7c4">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Дата «<u>"+$F{TO_CHAR(SYSDATE,'DD')}+"»</u>&nbsp; <u>"+$F{DDD}+"</u>&nbsp;"+$F{TO_CHAR(SYSDATE,'YYYY')}+"г."]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

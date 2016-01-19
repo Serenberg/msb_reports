@@ -1,0 +1,1 @@
+Проблемы со ставкой, cr_interest_rate на cr_interest_rate_approved

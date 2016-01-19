@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-09-02T10:35:59 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PKB_CONSENT_ID" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="df316729-9bc8-4a64-9226-797662471b53">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[--Исп: Пилипенко Е.В.
+--Дата: 08.05.2015
+--Назначение: Согласие ПКБ
+
+select
+dc.last_name || ' ' || dc.first_name || ' ' || nvl(dc.middle_name, '') || ', ' || to_char(dc.birthday, 'dd.MM.yyyy') || ', ' || nvl(rco1.caption, '') || ', ' ||  (case when dc.is_real_address = 1 then  get_address(dc.address_id) else get_address(dc.real_address_id) end)  ||  
+decode(dc.card_type_id, 'CERTIFICATE', 'Удостоверение личности', 'PASSPORT', 'Паспорт') || ' №' ||  
+ dc.card_number || ' от ' || to_char(dc.card_issue_date, 'dd.MM.yyyy') || ' ' || decode(dc.card_by_id, 'MVD_RK', 'МВД РК', 'MU_RK', 'МЮ РК') || ', ' || 
+ dc.iin as client_info,
+
+   nvl(app_set.STRING_VALUE,' ') || ', в лице ' || nvl(up1.POSITION,' ') || ', ' || nvl (up1.lastname,' ') || ' ' || substr(nvl(up1.firstname,' '),1,1) || '. '||substr(nvl(up.middle_name,' '),1,1)  as FIO_mangr,
+   '"' || to_char(sysdate, 'dd') || '"' as MonthDay,
+   decode(to_char(sysdate, 'mm'),'01','января','02','февраля','03','марта','04','апреля','05','мая','06','июня','07','июля','08','августа','09','сентября','10','октября','11','ноября','12','декабря'),
+   to_char(sysdate, 'yyyy'),
+   to_char(sysdate, 'HH24'),
+   to_char(sysdate, 'mi')
+  
+from doc_cl       dc
+  left join USER_PROFILE up on up.LOGIN = dc.user_created
+  left join USER_PROFILE up1 on up1.id = up.Manager_User_Id
+  left join ADDRESSES    aa on dc.ADDRESS_ID = aa.id
+  left join REF_COUNTRY  rco on aa.country_id = rco.id
+  left join REF_COUNTRY  rco1 on dc.BIRTH_PLACE_ID = rco1.id
+  left join REF_CITY     rc on aa.city_id = rc.id
+  left join REF_BRANCH   rb on up.branch_id = rb.id
+ left join REF_APPLICATION_SETTINGS app_set on app_set.id = 'BANK_REQ'
+where dc.id= $P{Идентификатор}]]>
+	</queryString>
+	<field name="CLIENT_INFO" class="java.lang.String"/>
+	<field name="FIO_MANGR" class="java.lang.String"/>
+	<field name="MONTHDAY" class="java.lang.String"/>
+	<field name="DECODE(TO_CHAR(SYSDATE,&apos;MM&apos;),&apos;01&apos;,&apos;ЯНВАРЯ&apos;,&apos;02&apos;,&apos;ФЕВРАЛЯ&apos;,&apos;03&apos;,&apos;МАРТА&apos;,&apos;04&apos;,&apos;АПРЕЛЯ&apos;,&apos;05&apos;,&apos;МАЯ&apos;,&apos;06&apos;,&apos;ИЮНЯ&apos;,&apos;07&apos;,&apos;ИЮЛЯ&apos;,&apos;08&apos;,&apos;АВГУСТА&apos;,&apos;09&apos;,&apos;СЕНТЯБРЯ&apos;,&apos;10&apos;,&apos;ОКТЯБРЯ&apos;,&apos;11&apos;,&apos;НОЯБРЯ&apos;,&apos;12&apos;,&apos;Д" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;YYYY&apos;)" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;HH24&apos;)" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;MI&apos;)" class="java.lang.String"/>
+	<detail>
+		<band height="820" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement positionType="Float" x="240" y="3" width="329" height="137" uuid="ef96c572-45a0-492b-91b0-3951dfce0b6a"/>
+				<textElement textAlignment="Justified">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<text><![CDATA[Приложение к постановлению Правления Агентства Республики Казахстан по регулированию и надзору финансового рынка и  финансовых организаций «О внесении изменений и дополнений в постановление  Правления Агентства Республики Казахстан по регулированию и надзору  финансового рынка и финансовых  организаций» от 21 августа 2004 года  N 250 «Об утверждении Правил об условиях и минимальных требованиях к порядку  предоставления информации поставщиками  информации, о порядке оформления согласия  субъектов кредитных историй на информации о них в кредитные бюро, оформления согласия на выдачу кредитного отчета и об  условиях и порядке предоставления кредитного отчета» от 23 февраля 2007 года N 38                 
+Приложение 1 к Правилам об условиях и минимальных  требованиях к порядку предоставления  информации поставщиками информации,  о порядке оформления согласия субъектов  кредитных историй на предоставление  информации о них в кредитные бюро,  оформления согласия на выдачу  кредитного отчета и об условиях и  порядке предоставления кредитного отчета     
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="190" width="392" height="40" uuid="d67979b2-831a-4bee-9931-322ba15e9761">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[Согласие
+субъекта кредитной истории
+на предоставление информации о нем в кредитные бюро
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="9" y="238" width="559" height="20" uuid="1236c52a-ba5d-4930-a851-fc53a2b983a2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MONTHDAY}+" "
++$F{DECODE(TO_CHAR(SYSDATE,'MM'),'01','ЯНВАРЯ','02','ФЕВРАЛЯ','03','МАРТА','04','АПРЕЛЯ','05','МАЯ','06','ИЮНЯ','07','ИЮЛЯ','08','АВГУСТА','09','СЕНТЯБРЯ','10','ОКТЯБРЯ','11','НОЯБРЯ','12','Д}+" "
+	+$F{TO_CHAR(SYSDATE,'YYYY')}+" года"+"        местное время "+$F{TO_CHAR(SYSDATE,'HH24')}+" часов "+$F{TO_CHAR(SYSDATE,'MI')}+" минут"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="7" y="279" width="561" height="15" uuid="619531b3-6e89-44fa-8afa-dcfcdf73f71a">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[Для физического лица]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="6" y="635" width="563" height="36" uuid="5ed2f5ab-30cf-46da-8eda-bb00d7b7d6cb">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman"/>
+				</textElement>
+				<text><![CDATA[________________________________________________________________________________________________________________
+(наименование организации, принявшей настоящее согласие; фамилия, инициалы и подпись лица, уполномоченного  принимать настоящее согласие)]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="7" y="631" width="559" height="15" uuid="e8c2e5d2-2bd5-42cc-8e8d-387d380b6b1e"/>
+				<textElement>
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{FIO_MANGR}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement x="6" y="300" width="568" height="15" uuid="3bfd54cb-e9cc-45c8-85b4-dc4528082d70"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" x="0" y="0" width="568" height="15" uuid="56feb6c0-ecac-443e-b891-d8e8eff935de">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{CLIENT_INFO}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="8" y="307" width="560" height="39" uuid="1da22977-2475-472c-923c-860a5e0884c6"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="560" height="39" uuid="13eb4695-8c44-4766-a140-c3cd946f541e"/>
+					<textElement>
+						<font fontName="Times New Roman" isItalic="true"/>
+						<paragraph firstLineIndent="0" spacingBefore="0"/>
+					</textElement>
+					<text><![CDATA[________________________________________________________________________________________________________
+(фамилия, имя, отчество (если имеется), дата и место рождения, место жительства, номер и дата документа, удостоверяющего личность, ИНН)]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="8" y="356" width="561" height="271" uuid="9620cd21-0479-4a19-a1bf-abbd3b98fe72"/>
+				<staticText>
+					<reportElement stretchType="RelativeToBandHeight" x="0" y="38" width="560" height="233" uuid="b2967c89-a3f5-478f-baf6-9dd217c7d67f">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement>
+						<font fontName="Times New Roman" size="10"/>
+					</textElement>
+					<text><![CDATA[________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+(указать наименование источника (ов) информации. В случае если согласие дается на предоставление информации из всех возможных источников, необходимо сделать об этом отметку), и которая поступит в указанный (ые) источник (и) в будущем
+________________________________________________________________________________________________________________(в случае согласия на раскрытие информации, которая поступит в будущем, необходимо поставить подпись; в случае несогласия с раскрытием информации, которая поступит в будущем, необходимо поставить прочерк), будет предоставлена во все кредитные бюро (если поставщик информации, оформляющий настоящее согласие,  предоставляет информацию во все кредитные бюро на территории Республики Казахстан в соответствии с пунктами 1 и 2 статьи 23 Закона о кредитных бюро) или в кредитные бюро:
+________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+(указать наименование кредитных бюро, если поставщик информации, оформляющий настоящее согласие, не обязан предоставлять информацию во все кредитные бюро на территории Республики Казахстан в соответствии со статьей 23 Закона о кредитных бюро).
+________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+(для физического лица: собственноручно указывается фамилия, имя и отчество (если имеется), проставляется личная подпись; для юридического лица: указывается наименование юридического лица, проставляется подпись лица, уполномоченного юридическим лицом на  подписание настоящего согласия, с указанием реквизитов доверенности, если лицо действует от имени юридического лица на основании доверенности, с приложением подлинника доверенности)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1" y="0" width="560" height="24" uuid="6b4578a1-d436-4d55-8c5e-69a3223e04f8"/>
+					<textElement>
+						<font fontName="Times New Roman" isItalic="false"/>
+						<paragraph firstLineIndent="0" spacingBefore="0"/>
+					</textElement>
+					<text><![CDATA[дает настоящее согласие в том, что информация о нем, касающаяся его (ее) финансовых и других обязательств имущественного характера, находящаяся в:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1" y="25" width="560" height="13" uuid="cdbd48b0-8052-4058-ba81-506cef1a9d9d"/>
+					<textElement>
+						<font fontName="Times New Roman" isBold="true" isItalic="false" isUnderline="true"/>
+						<paragraph firstLineIndent="0" spacingBefore="0"/>
+					</textElement>
+					<text><![CDATA[из всех источников]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

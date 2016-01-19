@@ -1,0 +1,2500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-09-02T17:30:32 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CL_APP_ID" pageWidth="595" pageHeight="842" columnWidth="585" leftMargin="5" rightMargin="5" topMargin="5" bottomMargin="5" uuid="a3040640-1433-4f4b-bc7a-32805ce7a568">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Dataset1" uuid="8e0af052-28be-4c17-b523-d157aefb58bf">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+		<parameter name="Идентификатор2" class="java.math.BigDecimal"/>
+		<queryString language="SQL">
+			<![CDATA[select  *
+from (
+select distinct row_number() over (order by a.id, c.payment_date) as rn, a.id, to_char(c.payment_date,'dd.mm.yyyy'),c.payment_summ, c.int_summ,c.principal_summ, c.debt_balance  from  doc_cl a, reg_cr_abis b,  repaiment c
+  where  b.id = a.reg_cr_abis_id --nvl(a.reg_cr_abis2_id, a.reg_cr_abis_id)               
+  and c.reg_cr_abis_id = b.id
+  and a.id= $P{Идентификатор2} 
+  
+  union all
+select null, a.id, 'Итого<br>(Жиынтығы):', sum(c.payment_summ), sum(c.int_summ), sum(c.principal_summ), null
+  from  doc_cl a, reg_cr_abis b,  repaiment c
+  where  b.id = a.reg_cr_abis_id --nvl(a.reg_cr_abis2_id, a.reg_cr_abis_id)
+  and c.reg_cr_abis_id = b.id
+  and a.id= $P{Идентификатор2} 
+  group by a.id) q
+order by q.rn nulls last   -- сортировка по возрастанию, пустые - в конце]]>
+		</queryString>
+		<field name="RN" class="java.math.BigDecimal"/>
+		<field name="ID" class="java.math.BigDecimal"/>
+		<field name="TO_CHAR(C.PAYMENT_DATE,&apos;DD.MM.YYYY&apos;)" class="java.lang.String"/>
+		<field name="PAYMENT_SUMM" class="java.math.BigDecimal"/>
+		<field name="INT_SUMM" class="java.math.BigDecimal"/>
+		<field name="PRINCIPAL_SUMM" class="java.math.BigDecimal"/>
+		<field name="DEBT_BALANCE" class="java.math.BigDecimal"/>
+		<group name="RN">
+			<groupExpression><![CDATA[$F{RN}]]></groupExpression>
+		</group>
+		<group name="ID">
+			<groupExpression><![CDATA[$F{ID}]]></groupExpression>
+		</group>
+		<group name="TO_CHAR(C.PAYMENT_DATE,&apos;DD.MM.YYYY&apos;)">
+			<groupExpression><![CDATA[$F{TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')}]]></groupExpression>
+		</group>
+		<group name="PAYMENT_SUMM">
+			<groupExpression><![CDATA[$F{PAYMENT_SUMM}]]></groupExpression>
+		</group>
+		<group name="INT_SUMM">
+			<groupExpression><![CDATA[$F{INT_SUMM}]]></groupExpression>
+		</group>
+		<group name="PRINCIPAL_SUMM">
+			<groupExpression><![CDATA[$F{PRINCIPAL_SUMM}]]></groupExpression>
+		</group>
+		<group name="DEBT_BALANCE">
+			<groupExpression><![CDATA[$F{DEBT_BALANCE}]]></groupExpression>
+		</group>
+	</subDataset>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[select dc.id,
+dc.cr_sum_approved as sum_approved,
+dc.last_name || ' ' || dc.first_name || ' ' || nvl(dc.middle_name, '') as zam_fio, 
+decode (dc.card_type_id,
+               'PASSPORT', 'Паспорт гр РК №',
+               'CERTIFICATE', 'Удостоверение личности №') as card_type_rus,
+decode (dc.card_type_id,
+               'PASSPORT', 'Паспорт №',
+               'CERTIFICATE', 'жеке куәлік №') as card_type_kaz,
+up1.position as mana_pos,
+decode(dc.card_by_id, 
+'MVD_RK', 'МВД РК',
+'MU_RK', 'МЮ РК') as card_by_rus,
+decode(dc.card_by_id, 
+'MVD_RK', 'ҚР ІІМ ',
+'MU_RK', 'ҚР ӘM') as card_by_kaz,
+-- ФИО   from doc_cl dc
+       dc.term_spec_cond as spec_cond , --спец условия
+decode(rp.id, 'REFIN_AB_CONS', 'рефинансирование и другие потребительские цели', 
+              'REFIN_CONS', 'рефинансирование и другие потребительские цели',
+              'REFIN', 'рефинансирование',
+              'CONS', 'потребительские цели') as loan_purpose_rus,
+decode(rp.id, 'REFIN_AB_CONS', 'қайта қаржыландыру және тұтынушылық мақсаттарға', 
+              'REFIN_CONS', 'қайта қаржыландыру және тұтынушылық мақсаттарға',
+              'REFIN', 'қайта қаржыландыру',
+              'CONS', 'тұтынушылық мақсаттарға') as loan_purpose_kaz,                           
+rp.caption as loan_purp,
+decode (cpt.id, 'ANNUITY_PAY', ' аннуитеттік',
+                'DIFFERENTIATED_PAY', ' дифференцирленген') as loan_type_kz
+,(case when dc.is_real_address > 0 then  get_address(dc.address_id) else  get_address(dc.real_address_id) end) as adr_fact, -- город+область+район+улица+дом
+get_address(dc.address_id) as adr_propis,  -- адрес прописки
+(select count(*)-1 from doc_cl cb1 where cb1.id <> dc.id and dc.group_reference = cb1.group_reference) as soz_count,
+---------------------------------------------------------
+--Инфо о созаемщике
+
+(select distinct listagg(chr(10)|| 'и ' || '<b>'||cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') ||
+ ' (' || decode (cb.card_type_id, 'PASSPORT', 'Паспорт гр РК №', 'CERTIFICATE', 'Удостоверение личности №') || 
+ card_number || ' выдан ' || decode(cb.card_by_id, 'MVD_RK', 'МВД РК', 'MU_RK', 'МЮ РК') || ' от ' || to_char(card_issue_date, 'dd.mm.yyyy') || '-' || to_char(card_end_date, 'dd.mm.yyyy') || ')</b>', ', '|| chr(10)  )
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference) as FIOB_1_RUS, --фио удос рус
+
+
+
+(select distinct listagg(chr(10) || 'және <b>' || cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') ||
+ ' (' || decode (cb.card_type_id, 'PASSPORT', 'Паспорт №',  'CERTIFICATE', 'жеке куәлік №') || card_number|| ' ' || decode(cb.card_by_id, 'MVD_RK', 'ҚР ІІМ ', 'MU_RK', 'ҚР ӘM') || ' берілген ' || to_char(card_issue_date, 'dd.mm.yyyy') || '-' || to_char(card_end_date, 'dd.mm.yyyy') || ')</b>', ', '|| chr(10) )
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference
+                       and cb.group_reference is not null) as FIOB_1_KAZ,  --фио удос каз
+                       
+                     
+                       
+                       
+ 
+(select distinct listagg('Созаемщик: ' ||cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') || chr(10) ||
+'ИИН ' || cb.iin || chr(10) ||
+ decode (cb.card_type_id, 'PASSPORT', 'Паспорт №',  'CERTIFICATE', 'Удостоверение личности №') ||  card_number || ' выдан ' || decode(cb.card_by_id, 'MVD_RK', 'МВД РК', 'MU_RK', 'МЮ РК') || ' от ' || to_char(card_issue_date, 'dd.mm.yyyy') || '-' || to_char(card_end_date, 'dd.mm.yyyy') || chr(10) 
+ ||  'Адрес регистрации: ' || get_address(cb.address_id) || chr(10) || 'Адрес фактического проживания: ' || 
+ (case when cb.  is_real_address > 0  then get_address(cb.address_id) else  get_address(cb.real_address_id) end) || chr(10) ||
+ 'Тел: ' || cb.mobile_phone1 || ' '|| nvl(cb.mobile_phone2, '') || chr(10) 
+||  'Текущий счет : ' || b1.loan_acc  || chr(10) , chr(10))
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       left join reg_cr_abis b1 on (b1.id = cb.reg_cr_abis_id)
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference
+						and cb.group_reference is not null) as FIOB_2_RUS, -- фио удос иин адрес телефон рус
+                       
+(select distinct listagg('Бірге қарыз алушы: '  ||cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') || chr(10) ||
+'ЖСН ' || cb.iin || chr(10) ||
+ 'Жеке басын куәландыратын құжат – ' || decode (cb.card_type_id, 'PASSPORT', 'Паспорт №',  'CERTIFICATE', 'жеке куәлік №') || cb.card_number || ' ' || decode(cb.card_by_id, 'MVD_RK', 'ҚР ІІМ ', 'MU_RK', 'ҚР ӘM') ||' берілген ' || to_char(cb.card_issue_date, 'dd.mm.yyyy') || '-' || to_char(cb.card_end_date, 'dd.mm.yyyy') || chr(10) ||
+ 'Тіркеу мекен жайы: ' || get_address(cb.address_id) || chr(10) || 'Тұрғылықты мекен жайы: ' ||  (case when cb.  is_real_address > 0  then get_address(cb.address_id) else  get_address(cb.real_address_id) end) || chr(10) ||
+ 'Тел: ' || cb.mobile_phone1 || ' ' || nvl(cb.mobile_phone2, '') || chr(10)
+|| 'Ағымдағы шот: ' || b1.loan_acc || chr(10) , chr(10)) 
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                        left join reg_cr_abis b1 on (b1.id = cb.reg_cr_abis_id)
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference
+                        and cb.group_reference is not null) as FIOB_2_KAZ, -- фио удсо иин адрес телефон каз
+                       
+ 
+(select distinct listagg(chr(10) || 'Бірге қарыз алушыдан / От Созаемщика:   _________________________'  ||cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') || chr(10),
+ ' ')
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference) as FIOB_1_I, -- подписанты
+
+(select distinct listagg(chr(10) || 'Бірге Қарыз алушының атауы / Наименование Созаемщика: '  ||cb.last_name || ' ' || cb.first_name || ' ' || nvl(cb.middle_name, '') || chr(10)
+ || 'Жеке куәлігі (төлқұжат)/ Удостоверение личности (паспорт) :' || chr(10) ||
+ decode (cb.card_type_id, 'PASSPORT', 'Паспорт №',  'CERTIFICATE', 'жеке куәлік №') || cb.card_number || ' ' || decode(cb.card_by_id, 'MVD_RK', 'МВД РК', 'MU_RK', 'МЮ РК') || ' от ' || to_char(cb.card_issue_date, 'dd.mm.yyyy') || '-' || to_char(cb.card_end_date, 'dd.mm.yyyy') || chr(10) ||
+ 'Бірге Қарыз алушы ЖСН / ИИН Созаемщика: ' || cb.iin
+ , '')
+ WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       left join reg_cr_abis b1 on ( cb.check_abis_acc_id = b1.id)
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference
+                                              and cb.group_reference is not null) as FIOB_2_I, --фио удос иин
+
+
+ (select distinct listagg(chr(10) || 'Бірге Қарыз алушынын ағымдағы шоты / Текущий счет Созаемщика: ' || nvl(b1.loan_acc, '') , '')
+ 	 WITHIN GROUP(order by cb.group_reference) over(partition by cb.group_reference) as ename_list
+                       from doc_cl cb
+                       left join reg_cr_abis b1 on ( cb.check_abis_acc_id = b1.id)
+                       where cb.id <> dc.id
+                       and cb.group_reference = dc.group_reference
+                                              and cb.group_reference is not null) as FIOB_ACC_I,
+---------------------------------------------------------------------------------
+       /*,    ct.caption || ',  ' ||*/
+       dc.CARD_NUMBER, /*№ уд. личности !!*/
+       dc.term_add_docs as day_for_doc_from_other_bank,
+       dc.name_add_docs as name_doc_for_bank, 
+       dc.email as email, -- пошта электронная
+       dc.mobile_phone1 as phone, -- телефон
+       to_char(dc.Card_END_DATE, 'dd.mm.yyyy') as card_end_date, --день завершения действия удостоверения
+       to_char(dc.CARD_ISSUE_DATE, 'dd.mm.yyyy') -- день даты выдачи уд. личности
+      ,
+      nvl(rct.caption,' ') as city,
+       '(' || speller.spell_kz(case
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            nvl(dc.sum_cr_refinanc, 0)
+       end) || ')' as sum_kaz, -- суммы прописью на каз !!
+      '(' || speller.spell_kz(dc.term_add_docs) || ')' as days_doc_kaz, -- количество дней когда надо принести в банк документы каз
+      '(' || speller.spell(dc.term_add_docs) || ')' as days_doc_rus, -- количество дней когда надо принести в банк документы  рус 
+       '(' || speller.spell(case
+                              when dc.is_refinancing = 0 then
+                               dc.cr_sum_approved
+                              else
+           						 nvl(dc.sum_cr_refinanc, 0)
+                            end) || ')' as sum_rus, -- суммы прописью на русс!!
+        (select to_char(max(bb.payment_date), 'dd.mm.YYYY')
+          from (select row_number() over(order by a.id) as rn,
+                       a.id,
+						b.Loan_toDate as payment_date,
+                       c.payment_summ,
+                       c.int_summ,
+                       c.principal_summ,
+                       c.debt_balance
+                  from doc_cl a, reg_cr_abis b, repaiment c
+                 where b.id = a.reg_cr_abis_id
+                   and c.reg_cr_abis_id = b.id) bb
+         where bb.id = dc.id
+        
+        ) as date_end_loan,
+                                 
+
+       (select to_char(max(bb.payment_date), 'dd')
+          from (select row_number() over(order by a.id) as rn,
+                       a.id,
+                       c.payment_date,
+                       c.payment_summ,
+                       c.int_summ,
+                       c.principal_summ,
+                       c.debt_balance
+                  from doc_cl a, reg_cr_abis b, repaiment c
+                 where b.id = a.reg_cr_abis_id
+                   and c.reg_cr_abis_id = b.id) bb
+         where bb.id = dc.id
+        
+        ) as dt_mx_dd, -- последняя дата платежа день!!,
+       
+       (select decode(to_char(max(bb.payment_date), 'mm'), 
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря')
+          from (select row_number() over(order by a.id) as rn,
+                       a.id,
+                       c.payment_date,
+                       c.payment_summ,
+                       c.int_summ,
+                       c.principal_summ,
+                       c.debt_balance
+                  from doc_cl a, reg_cr_abis b, repaiment c
+                 where b.id = a.reg_cr_abis_id
+                   and c.reg_cr_abis_id = b.id) bb
+         where bb.id = dc.id
+        
+        ) as dt_mx_mm, --последняя дата платежа месяц
+       
+       (select to_char(max(bb.payment_date), 'yyyy')
+          from (select row_number() over(order by a.id) as rn,
+                       a.id,
+                       c.payment_date,
+                       c.payment_summ,
+                       c.int_summ,
+                       c.principal_summ,
+                       c.debt_balance
+                  from doc_cl a, reg_cr_abis b, repaiment c
+                 where b.id = a.reg_cr_abis_id
+                   and c.reg_cr_abis_id = b.id) bb
+         where bb.id = dc.id
+        
+        ) as dt_mx_yyyy, --последняя дата платежа год
+       
+        '(' || speller.spell_kz(dc.cr_interest_rate) || ')' as rate_n_kaz, -- суммы прописью на каз !!
+        '(' || speller.spell(dc.cr_interest_rate) || ')' as rate_n_rus, -- суммы прописью на русс!!
+        '(' || speller.spell(b.loan_percent_ef) || ')' as rate_ef_rus,
+        '(' || speller.spell_kz(b.loan_percent_ef) || ')' as rate_ef_kaz, -- суммы прописью на каз !!
+       dc.rnn, -- рнн заемщика
+       dc.iin, -- иин заемщика
+       --  da.acc_num, -- текущий счет заемщика
+       case
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            nvl(dc.sum_cr_refinanc, 0)
+       end as loan_sum_lst,
+       rc.id as currency, -- валюта
+       dc.cr_interest_rate, -- ставка вознагр
+       dc.cr_months_approved  as CR_MONTHS, --  срок -- надо уточнить!!!
+       to_char(dc.CARD_ISSUE_DATE, 'dd') -- день даты выдачи уд. личности
+      ,
+       decode(to_char(dc.CARD_ISSUE_DATE, 'mm'), --  месяц даты выдачи уд. личности
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря'),
+       to_char(dc.CARD_ISSUE_DATE, 'dd.MM.yyyy') carddate1,-- год даты выдачи уд. личности
+       to_char(dc.CARD_ISSUE_DATE, 'yyyy') -- год даты выдачи уд. личности
+      ,
+       dc.id,
+       b.loan_percent_ef -- ГЭСВ   
+      ,
+      decode(cpt.id ,
+      	'ANNUITY_PAY' , 'аннуитетным',
+      	'DIFFERENTIATED_PAY', 'дифференцированным'
+      	)as PAYOFF_TYPE ,-- тип погашения
+(case
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            nvl(dc.sum_cr_refinanc, 0)
+       end)/dc.cr_sum_approved * dc.commission as loan_komiss -- комиссия за организацию займа
+      ,
+       '(' || speller.spell_kz((case
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            nvl(dc.sum_cr_refinanc, 0)
+       end)/dc.cr_sum_approved * dc.commission) || ')' as loan_komiss_kaz -- суммы прописью на каз !!
+      ,
+       '(' || speller.spell((case
+          when dc.is_refinancing = 0 
+            then dc.cr_sum_approved
+            else
+            nvl(dc.sum_cr_refinanc, 0)
+       end)/dc.cr_sum_approved * dc.commission) || ')' as loan_komiss_rus -- суммы прописью на русс!!
+       ,to_char(b.loan_date, 'dd') -- день дата выдачи займа
+      ,
+       decode(to_char(b.loan_date, 'mm'), --  месяц дата выдачи займа
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря'),
+       to_char(b.loan_date, 'yyyy') -- дата выдачи займа
+       ,
+       to_char(b.date_created, 'dd.MM.yyyy') as loandate1-- дата выдачи займа       
+      ,
+       to_char(b.date_updated, 'dd') -- день дата формирования графика
+      ,
+       decode(to_char(b.date_updated, 'mm'), --  месяц дата формирования графика
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря'),
+       to_char(b.date_updated, 'yyyy') -- дата формирования графика
+      ,
+      dc.doc_number as doc_number -- номер договора (транша)
+      ,b.loan_code
+      ,up1.lastname || ' '||up1.firstname || ' ' || nvl(up1.middle_name, '')  as manager_fio
+      ,
+       to_char(sysdate, 'dd.mm.yyyy') as sddmy,-- день тек. даты
+      nvl(b.loan_acc,' ') as acc ,-- тек счет клиента, если счет был выбран менеджером  dc.CHECK_ABIS_ACC_ID не пусто, то этот счет отразится в reg_cr_abis       
+       dc.is_refinancing,
+       'БИК: ALFAKZKA',
+        to_char(sysdate, 'dd') -- день дата выдачи займа
+      ,
+       decode(to_char(sysdate, 'mm'), --  месяц дата выдачи займа
+              '01',
+              'января',
+              '02',
+              'февраля',
+              '03',
+              'марта',
+              '04',
+              'апреля',
+              '05',
+              'мая',
+              '06',
+              'июня',
+              '07',
+              'июля',
+              '08',
+              'августа',
+              '09',
+              'сентября',
+              '10',
+              'октября',
+              '11',
+              'ноября',
+              '12',
+              'декабря'),
+       to_char(sysdate, 'yyyy'),
+       (select distinct
+               LISTAGG(pvc.bank, ', ') within group(order by pvc.doc_cl_id) as ref_bank
+               from             (select distinct pvc.bank, pvc.doc_cl_id  
+               from PKB_VALID_CREDITS pvc
+               where pvc.is_refinance > 0) pvc
+                    where pvc.doc_cl_id = dc.id
+                    and pvc.bank <> 'АО ДБ "Альфа-Банк"'
+               group by pvc.doc_cl_id) as ref_bank,
+
+       to_char(sysdate, 'dd.mm.YYYY') as now_date
+       
+from doc_cl dc
+
+LEFT JOIN (select *
+                from (select a.assignee_, b.text_,a.end_time_, row_number() over (partition by b.text_ order by b.text_,a.end_time_ ) as rw
+                        from act_hi_taskinst a
+                          inner join act_ru_variable b on b.proc_inst_id_ = a.proc_inst_id_
+                       where b.name_ = 'recordId'
+                         and a.task_def_key_ = 'STAGE_NUMBER_210'
+                        order by b.text_,a.end_time_ desc) w
+               where w.rw = 1) bb
+ 
+    on to_char(dc.id) = bb.text_
+
+       left join USER_PROFILE  up on (bb.assignee_ = up.login)
+       LEFT JOIN USER_PROFILE    up1  on up.manager_user_id = up1.id
+       left join REF_CURRENCY rc on (dc.CR_CURRENCY_ID = rc.id)
+       left join reg_cr_abis  b on (dc.reg_cr_abis_id = b.id)
+       left join REF_BRANCH rb on (up1.branch_id=rb.id)
+       left join REF_CITY rct on (rb.city_id=rct.id)
+       left join REF_CR_PURPOSE     rp on (dc.CR_PURPOSE_ID = rp.id)
+       left join REF_CR_PAYOFF_TYPE cpt on (dc.CR_PAYOFF_TYPE_ID = cpt.id)
+       left join ADDRESSES          aa2 on (dc.REAL_ADDRESS_ID = aa2.id  /*and*/ 
+                               --             aa2.country_id = rco.id and 
+                             --               aa2.city_id = rct1.id /*and*//* 
+                                      /*      aa2.REGION_ID = rg1.id and 
+                                            aa2.DISTRICT_ID = rd1.id*/) -- факт. прожив
+       left join ref_district rd1 on (aa2.DISTRICT_ID = rd1.id)
+       left join ref_country        rco on (aa2.DISTRICT_ID = rd1.id)
+       left join REF_CITY           rct1 on (rb.city_id=rct.id)
+       left join Doc_Check_Abis_Acc dcaa on (dc.check_abis_acc_id = dcaa.id)
+       
+ --      REF_DISTRICT       rd1,
+       left join REF_REGION         rg1 on (aa2.REGION_ID = rg1.id)
+       left join PKB_VALID_CREDITS pvc on pvc.doc_cl_id = dc.id 
+       
+    where dc.id =   $P{Идентификатор} and rownum = 1]]>
+	</queryString>
+	<field name="ID" class="java.math.BigDecimal"/>
+	<field name="SUM_APPROVED" class="java.math.BigDecimal"/>
+	<field name="ZAM_FIO" class="java.lang.String"/>
+	<field name="CARD_TYPE_RUS" class="java.lang.String"/>
+	<field name="CARD_TYPE_KAZ" class="java.lang.String"/>
+	<field name="MANA_POS" class="java.lang.String"/>
+	<field name="CARD_BY_RUS" class="java.lang.String"/>
+	<field name="CARD_BY_KAZ" class="java.lang.String"/>
+	<field name="SPEC_COND" class="java.math.BigDecimal"/>
+	<field name="LOAN_PURPOSE_RUS" class="java.lang.String"/>
+	<field name="LOAN_PURPOSE_KAZ" class="java.lang.String"/>
+	<field name="LOAN_PURP" class="java.lang.String"/>
+	<field name="LOAN_TYPE_KZ" class="java.lang.String"/>
+	<field name="ADR_FACT" class="java.lang.String"/>
+	<field name="ADR_PROPIS" class="java.lang.String"/>
+	<field name="SOZ_COUNT" class="java.math.BigDecimal"/>
+	<field name="FIOB_1_RUS" class="java.lang.String"/>
+	<field name="FIOB_1_KAZ" class="java.lang.String"/>
+	<field name="FIOB_2_RUS" class="java.lang.String"/>
+	<field name="FIOB_2_KAZ" class="java.lang.String"/>
+	<field name="FIOB_1_I" class="java.lang.String"/>
+	<field name="FIOB_2_I" class="java.lang.String"/>
+	<field name="FIOB_ACC_I" class="java.lang.String"/>
+	<field name="CARD_NUMBER" class="java.lang.String"/>
+	<field name="DAY_FOR_DOC_FROM_OTHER_BANK" class="java.math.BigDecimal"/>
+	<field name="NAME_DOC_FOR_BANK" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="PHONE" class="java.lang.String"/>
+	<field name="CARD_END_DATE" class="java.lang.String"/>
+	<field name="TO_CHAR(DC.CARD_ISSUE_DATE,&apos;DD.MM.YYYY&apos;)--ДЕНЬДАТЫВЫДАЧИУД.ЛИЧНОСТИ" class="java.lang.String"/>
+	<field name="CITY" class="java.lang.String"/>
+	<field name="SUM_KAZ" class="java.lang.String"/>
+	<field name="DAYS_DOC_KAZ" class="java.lang.String"/>
+	<field name="DAYS_DOC_RUS" class="java.lang.String"/>
+	<field name="SUM_RUS" class="java.lang.String"/>
+	<field name="DATE_END_LOAN" class="java.lang.String"/>
+	<field name="DT_MX_DD" class="java.lang.String"/>
+	<field name="DT_MX_MM" class="java.lang.String"/>
+	<field name="DT_MX_YYYY" class="java.lang.String"/>
+	<field name="RATE_N_KAZ" class="java.lang.String"/>
+	<field name="RATE_N_RUS" class="java.lang.String"/>
+	<field name="RATE_EF_RUS" class="java.lang.String"/>
+	<field name="RATE_EF_KAZ" class="java.lang.String"/>
+	<field name="RNN" class="java.lang.String"/>
+	<field name="IIN" class="java.lang.String"/>
+	<field name="LOAN_SUM_LST" class="java.math.BigDecimal"/>
+	<field name="CURRENCY" class="java.lang.String"/>
+	<field name="CR_INTEREST_RATE" class="java.math.BigDecimal"/>
+	<field name="CR_MONTHS" class="java.math.BigDecimal"/>
+	<field name="TO_CHAR(DC.CARD_ISSUE_DATE,&apos;DD&apos;)--ДЕНЬДАТЫВЫДАЧИУД.ЛИЧНОСТИ" class="java.lang.String"/>
+	<field name="DECODE(TO_CHAR(DC.CARD_ISSUE_DATE,&apos;MM&apos;),--МЕСЯЦДАТЫВЫДАЧИУД.ЛИЧНОСТИ&apos;01&apos;,&apos;ЯНВАРЯ&apos;,&apos;02&apos;,&apos;ФЕВРАЛЯ&apos;,&apos;03&apos;,&apos;МАРТА&apos;,&apos;04&apos;,&apos;АПРЕЛЯ&apos;,&apos;05&apos;,&apos;МАЯ&apos;,&apos;06&apos;,&apos;ИЮНЯ&apos;,&apos;07&apos;,&apos;ИЮЛЯ&apos;,&apos;08&apos;,&apos;АВГУСТА&apos;,&apos;09&apos;,&apos;СЕ" class="java.lang.String"/>
+	<field name="CARDDATE1" class="java.lang.String"/>
+	<field name="TO_CHAR(DC.CARD_ISSUE_DATE,&apos;YYYY&apos;)--ГОДДАТЫВЫДАЧИУД.ЛИЧНОСТИ" class="java.lang.String"/>
+	<field name="COLUMN_54" class="java.math.BigDecimal"/>
+	<field name="LOAN_PERCENT_EF" class="java.math.BigDecimal"/>
+	<field name="PAYOFF_TYPE" class="java.lang.String"/>
+	<field name="LOAN_KOMISS" class="java.math.BigDecimal"/>
+	<field name="LOAN_KOMISS_KAZ" class="java.lang.String"/>
+	<field name="LOAN_KOMISS_RUS" class="java.lang.String"/>
+	<field name="TO_CHAR(B.LOAN_DATE,&apos;DD&apos;)--ДЕНЬДАТАВЫДАЧИЗАЙМА" class="java.lang.String"/>
+	<field name="DECODE(TO_CHAR(B.LOAN_DATE,&apos;MM&apos;),--МЕСЯЦДАТАВЫДАЧИЗАЙМА&apos;01&apos;,&apos;ЯНВАРЯ&apos;,&apos;02&apos;,&apos;ФЕВРАЛЯ&apos;,&apos;03&apos;,&apos;МАРТА&apos;,&apos;04&apos;,&apos;АПРЕЛЯ&apos;,&apos;05&apos;,&apos;МАЯ&apos;,&apos;06&apos;,&apos;ИЮНЯ&apos;,&apos;07&apos;,&apos;ИЮЛЯ&apos;,&apos;08&apos;,&apos;АВГУСТА&apos;,&apos;09&apos;,&apos;СЕНТЯБРЯ&apos;,&apos;10&apos;" class="java.lang.String"/>
+	<field name="TO_CHAR(B.LOAN_DATE,&apos;YYYY&apos;)--ДАТАВЫДАЧИЗАЙМА" class="java.lang.String"/>
+	<field name="LOANDATE1" class="java.lang.String"/>
+	<field name="TO_CHAR(B.DATE_UPDATED,&apos;DD&apos;)--ДЕНЬДАТАФОРМИРОВАНИЯГРАФИКА" class="java.lang.String"/>
+	<field name="DECODE(TO_CHAR(B.DATE_UPDATED,&apos;MM&apos;),--МЕСЯЦДАТАФОРМИРОВАНИЯГРАФИКА&apos;01&apos;,&apos;ЯНВАРЯ&apos;,&apos;02&apos;,&apos;ФЕВРАЛЯ&apos;,&apos;03&apos;,&apos;МАРТА&apos;,&apos;04&apos;,&apos;АПРЕЛЯ&apos;,&apos;05&apos;,&apos;МАЯ&apos;,&apos;06&apos;,&apos;ИЮНЯ&apos;,&apos;07&apos;,&apos;ИЮЛЯ&apos;,&apos;08&apos;,&apos;АВГУСТА&apos;,&apos;09&apos;,&apos;СЕ" class="java.lang.String"/>
+	<field name="TO_CHAR(B.DATE_UPDATED,&apos;YYYY&apos;)--ДАТАФОРМИРОВАНИЯГРАФИКА" class="java.lang.String"/>
+	<field name="DOC_NUMBER" class="java.lang.String"/>
+	<field name="LOAN_CODE" class="java.lang.String"/>
+	<field name="MANAGER_FIO" class="java.lang.String"/>
+	<field name="SDDMY" class="java.lang.String"/>
+	<field name="ACC" class="java.lang.String"/>
+	<field name="IS_REFINANCING" class="java.math.BigDecimal"/>
+	<field name="&apos;БИК:ALFAKZKA&apos;" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;DD&apos;)--ДЕНЬДАТАВЫДАЧИЗАЙМА" class="java.lang.String"/>
+	<field name="DECODE(TO_CHAR(SYSDATE,&apos;MM&apos;),--МЕСЯЦДАТАВЫДАЧИЗАЙМА&apos;01&apos;,&apos;ЯНВАРЯ&apos;,&apos;02&apos;,&apos;ФЕВРАЛЯ&apos;,&apos;03&apos;,&apos;МАРТА&apos;,&apos;04&apos;,&apos;АПРЕЛЯ&apos;,&apos;05&apos;,&apos;МАЯ&apos;,&apos;06&apos;,&apos;ИЮНЯ&apos;,&apos;07&apos;,&apos;ИЮЛЯ&apos;,&apos;08&apos;,&apos;АВГУСТА&apos;,&apos;09&apos;,&apos;СЕНТЯБРЯ&apos;,&apos;10&apos;,&apos;О" class="java.lang.String"/>
+	<field name="TO_CHAR(SYSDATE,&apos;YYYY&apos;)" class="java.lang.String"/>
+	<field name="REF_BANK" class="java.lang.String"/>
+	<field name="NOW_DATE" class="java.lang.String"/>
+	<group name="Group19"/>
+	<group name="Group18"/>
+	<group name="Group16"/>
+	<group name="Group15">
+		<groupFooter>
+			<band height="831">
+				<property name="local_mesure_unitheight" value="pixel"/>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<frame>
+					<reportElement positionType="Float" x="1" y="193" width="584" height="27" uuid="c40b99b9-f451-41e6-bc37-7fc17e48661b"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="0" y="0" width="584" height="27" uuid="b4db21fb-1d9a-4cf6-9f2f-4976e403d99f"/>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Justified" verticalAlignment="Middle" markup="styled">
+							<font fontName="Times New Roman" size="12" isBold="false" isItalic="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{CARD_TYPE_RUS} + $F{CARD_NUMBER} + " выдан " + $F{CARD_BY_RUS} +" от " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} +"\nҚарыз алушының ЖСН / ИИН Заемщика: " + $F{IIN} +	 "" + ($F{SOZ_COUNT}.intValue() > 0 ? $F{FIOB_2_I} : " ") + "\nҚарыз алушының ағымдағы шоты / Текущий счет Заемщика: " + $F{ACC} + ($F{SOZ_COUNT}.intValue() > 0 ? $F{FIOB_ACC_I} : "") +"\nҚарыз сомасы  / Сумма Займа : " +  ($F{LOAN_SUM_LST} != null ? $F{LOAN_SUM_LST} : "")  + "\nҚарыз валютасы / Валюта Займа: " + $F{CURRENCY} + "\nСыйақы мөлшерлемесі / Ставка Вознаграждения: " + $F{CR_INTEREST_RATE} + " %, ЖТСМ/ ГЭСВ: " +  ($F{LOAN_PERCENT_EF} != null ? $F{LOAN_PERCENT_EF} : "") + "  %;\nҚарыз  мерзімі / Срок Займа: " + $F{CR_MONTHS} + " месяцев" + "\nҚарызды беру мерзімі / Дата выдачи Займа: " + $F{NOW_DATE} + "  ж./г.\nКестені құрастыру күні /Дата составления графика: " + $F{SDDMY} + "  ж./г."]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="3" y="160" width="579" height="15" uuid="6b34ce6e-cc64-4302-93f9-789279676d78"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="0" y="0" width="579" height="15" uuid="164d470c-2853-4799-9d9a-c7ae92a82186">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement markup="styled">
+							<font fontName="Times New Roman" size="12" isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA["Қарыз алушының аты-жөні/ ФИО Заемщика: " + $F{ZAM_FIO}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="3" y="177" width="327" height="15" uuid="3d057c5e-13b7-4299-9e2d-d62f328e2348"/>
+					<textField>
+						<reportElement positionType="Float" x="0" y="0" width="327" height="15" uuid="01216f0f-7561-4461-871a-7c425276f58d"/>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Justified" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12" isBold="false" isItalic="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA["Жеке куәлігі (төлқұжат) / Удостоверение личности (паспорт): "]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="-2" y="231" width="586" height="83" uuid="177aeb55-3bf9-4716-8c33-92f7c87c90b3"/>
+					<componentElement>
+						<reportElement x="10" y="0" width="561" height="83" uuid="2c1e704d-351d-4259-9ddf-eeef4c72453c"/>
+						<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
+							<datasetRun subDataset="Dataset1" uuid="891ceafb-32cb-46d2-bf16-223a2edb9bb7">
+								<datasetParameter name="Идентификатор2">
+									<datasetParameterExpression><![CDATA[$P{Идентификатор}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+							<jr:column width="60" uuid="ba5c4a92-33b3-4ea9-ace3-d12e73394006">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="local_mesure_unitheight" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="60" height="68" uuid="0933b707-b8e7-4a1f-94fd-593a1ec729d0">
+											<property name="local_mesure_unitheight" value="pixel"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[№ р/н]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="15" uuid="af557136-b183-434f-a2fd-7539311a97d8">
+											<property name="local_mesure_unitheight" value="pixel"/>
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{RN}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="100" uuid="3d16e70c-dcc6-4a4a-8bc6-72cece88074b">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="local_mesure_unitheight" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="100" height="68" uuid="11049dd2-cdb4-4813-a585-0955d2781562"/>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[Дата погашения/
+Өтеу күні
+]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="100" height="15" uuid="dcd06f6c-81a3-45a4-a0cb-9f5daaa9ef88">
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center" markup="html">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="100" uuid="ced1024b-22aa-41ee-9218-82b625b0c7a1">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="local_mesure_unitheight" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="100" height="68" uuid="1b9829cb-bf34-4e1c-9b6e-1543eb925325"/>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[Суммарное
+ значение
+платежа / 
+Төлемнің жиынтық мәні
+]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="100" height="15" uuid="17937f4c-fff5-425c-9636-2920a322a602">
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{PAYMENT_SUMM}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="100" uuid="8107ec50-468e-4bbf-9b70-4480c7c55a0b">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="100" height="68" uuid="c210c37e-146c-4e34-ad35-4800fd11c1af">
+											<property name="local_mesure_unitwidth" value="pixel"/>
+											<property name="com.jaspersoft.studio.unit.width" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[Сумма
+погашения
+вознаграждения / 
+Сыйақыны
+өтеу сомасы
+]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="100" height="15" uuid="0a36941c-9c1c-44a5-892f-279044586e01">
+											<property name="com.jaspersoft.studio.unit.width" value="px"/>
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{INT_SUMM}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="100" uuid="ecf7d59a-7cb8-4ab8-bb66-9b8beb083811">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="100" height="68" uuid="fb53eb79-38f3-4a1e-81a6-768e9ecb3a62"/>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[Сумма
+погашения
+основного долга / 
+Негізгі қарыздың өтеу сомасы
+]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="100" height="15" uuid="652fc4e7-a65f-4471-9d09-ab15d4cee299">
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center" markup="styled">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{PRINCIPAL_SUMM}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="100" uuid="e143011d-0488-4b94-bec0-b4166c70a06f">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<jr:tableHeader style="Table_TH" height="0"/>
+								<jr:tableFooter style="Table_TH" height="0"/>
+								<jr:groupHeader groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupHeader groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupHeader>
+								<jr:groupFooter groupName="RN">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="ID">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="TO_CHAR(C.PAYMENT_DATE,'DD.MM.YYYY')">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PAYMENT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="INT_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="PRINCIPAL_SUMM">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:groupFooter groupName="DEBT_BALANCE">
+									<jr:cell style="Table_CH" height="0"/>
+								</jr:groupFooter>
+								<jr:columnHeader style="Table_CH" height="68">
+									<staticText>
+										<reportElement x="0" y="0" width="100" height="68" uuid="961256cb-60bc-4588-a6e4-1461af971e74"/>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="10" isBold="true"/>
+										</textElement>
+										<text><![CDATA[Остаток
+Задолженности /
+Берешектің
+ қалдығы
+]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:columnFooter style="Table_CH" height="0"/>
+								<jr:detailCell style="Table_TD" height="15">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="100" height="15" uuid="a02683f5-8adf-44aa-8963-d24b924c0803">
+											<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										</reportElement>
+										<textElement textAlignment="Center">
+											<font fontName="Times New Roman" size="12"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{DEBT_BALANCE}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:table>
+					</componentElement>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="301" y="6" width="279" height="15" uuid="8d5090c7-e5ca-4bc9-9329-4aedc91d6528"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="279" height="15" uuid="0d07424d-a279-415a-9d16-01014f51b195">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Right">
+							<font fontName="Times New Roman" size="12" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{LOANDATE1} + " ж. №" + $F{DOC_NUMBER}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="331" y="21" width="249" height="69" uuid="c94ac61b-1c25-45b5-a54c-7828d0eff159"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="249" height="69" uuid="6bb75996-7d1d-4cd2-b34a-7d00c28efe7f">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement textAlignment="Right" verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12" isBold="false" isItalic="false"/>
+						</textElement>
+						<text><![CDATA[Банктік қарыз шартына
+№1 Қосымша 
+
+Приложение №1
+к Договору банковского займа
+
+]]></text>
+					</staticText>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="301" y="90" width="279" height="15" uuid="6ed5830b-644e-4244-b98b-374e19630418"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="279" height="15" uuid="8e8bac65-2d7d-43be-af6a-a79f77cee3c4">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Right">
+							<font fontName="Times New Roman" size="12" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA["№" + $F{DOC_NUMBER} + " от " + $F{LOANDATE1} + " г."]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="122" y="120" width="282" height="30" uuid="dd3b7202-fc18-4572-b83d-866ffa684d5b"/>
+					<frame>
+						<reportElement positionType="Float" x="0" y="0" width="282" height="30" uuid="20ab6531-9f76-4237-8ef1-6233aa629f83"/>
+						<staticText>
+							<reportElement x="0" y="0" width="282" height="30" uuid="e6a75554-37e4-4f4f-aad7-5348e98128a7">
+								<property name="local_mesure_unitheight" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement textAlignment="Center" verticalAlignment="Middle">
+								<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+							</textElement>
+							<text><![CDATA[ӨТЕУ КЕСТЕСІ
+ГРАФИК ПОГАШЕНИЯ
+]]></text>
+						</staticText>
+					</frame>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="2" y="344" width="582" height="387" uuid="2761c690-ea74-4aea-b95d-f83a132c5abc"/>
+					<frame>
+						<reportElement positionType="Float" x="0" y="305" width="558" height="7" uuid="338907d7-5600-4839-976d-b1aa5f20edf7"/>
+						<textField isStretchWithOverflow="true">
+							<reportElement positionType="Float" x="2" y="0" width="556" height="7" uuid="151636d3-ecef-4508-8d7e-4e731761f195"/>
+							<textElement verticalAlignment="Middle" markup="styled">
+								<font fontName="Times New Roman" size="12" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA["\n\nҚарыз алушыдан / От Заемщика:  _________________ " + $F{ZAM_FIO}]]></textFieldExpression>
+						</textField>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" x="1" y="2" width="580" height="264" uuid="73ad7a76-dbbf-4a03-99c2-05f05b900e61"/>
+						<box>
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<staticText>
+							<reportElement x="0" y="0" width="40" height="97" uuid="ea01db60-65bd-4d03-9d74-95929a404d47"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman" isBold="true"/>
+							</textElement>
+							<text><![CDATA[№]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="40" y="0" width="183" height="97" uuid="f0c15dae-f20b-4df5-b83d-8d14034069aa"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman" isBold="true"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Банк ұсынған берешекті өтеуі тәсілі / Методы погашения задолженности,
+предложенные Банком  
+]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="97" width="40" height="30" uuid="576634fe-e495-4b9b-9a4e-397adc095660">
+								<property name="local_mesure_unitheight" value="pixel"/>
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[1]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="223" y="0" width="229" height="97" uuid="47fe9774-eb0a-44b3-8203-fc25a484e7ae">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman" isBold="true"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[өтеу әдісінде Қарыз алушының (Бірге Қарыз алушының) келісетін не бас тартатыны туралы белгісі (бас тартқан жағдайда «жоқ», келіскенде «иә» деп ұсыну) / Отметка Заемщика  (Созаемщика) о согласии либо об отказе в применении метода погашения (в случае отказа проставляется "нет", при согласии проставляется "да")]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="452" y="0" width="128" height="97" uuid="a48a734e-49fc-4f77-a37e-b55ed6b1b5ab"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Қарыз алушы
+(Бірге Қарыз алушы) / Заемщик
+(Созаемщик):
+]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="40" y="97" width="183" height="30" uuid="7a1225f0-5c8d-4e45-b139-95825b51f85b">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Дифференцирленген / Дифференцированный]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="223" y="97" width="229" height="30" uuid="59784c4f-1706-4067-867b-fb5d18772b77">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="127" width="40" height="30" uuid="9b536431-4ae1-4c4d-84fe-13e45a7c3899">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[2]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="40" y="127" width="183" height="30" uuid="b6602dbb-fc36-4440-abdb-b33a51cfab77">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Аннуитеттік / Аннуитетный ]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="223" y="127" width="229" height="30" uuid="0237fa0e-c99a-4347-a9b7-016b5b71982e">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="157" width="40" height="30" uuid="499f2f42-51ce-406f-bc66-55942552b63d"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[3]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="223" y="187" width="229" height="30" uuid="614f5774-5bc2-4e8a-8385-e93892acd0cf">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="40" y="187" width="183" height="30" uuid="a8ff784a-8042-4d8c-89b3-4d2f1198d394">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Жеке-дара (болған кезде)/ Индивидуальный (при наличии)]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="40" y="157" width="183" height="30" uuid="c6cff721-51b0-4ab4-8754-1c876045b17e">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[Мерзімнің аяғында (болған кезде)/ 
+В конце срока (при наличии)
+]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="223" y="157" width="229" height="30" uuid="098df149-119f-47b5-8135-bae487a7ef35">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="187" width="40" height="30" uuid="3357390a-d45f-49dc-9130-5975a509b9f9">
+								<property name="local_mesure_unitwidth" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							</reportElement>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[4]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="217" width="452" height="47" uuid="04c4dbf6-9926-405c-bf1f-a430db6efa7c"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="452" y="97" width="128" height="120" uuid="0b97abd2-562d-449b-94f1-a5a4fc02f16d"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<text><![CDATA[]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="452" y="217" width="128" height="47" uuid="4e8b2582-9d4f-4136-af41-2bb951c789d5"/>
+							<box>
+								<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement>
+								<font fontName="Times New Roman"/>
+								<paragraph leftIndent="3"/>
+							</textElement>
+							<text><![CDATA[(қол қою қажет)/ (необходимо проставить подпись) ]]></text>
+						</staticText>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" x="1" y="280" width="574" height="23" uuid="b9b1e373-1bf9-4478-ba8c-84006601a47d"/>
+						<frame>
+							<reportElement positionType="Float" x="1" y="0" width="573" height="10" uuid="f7b694ae-1fef-41b0-86b8-dfb57fb2d0a8"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="0" y="0" width="573" height="10" uuid="c6bfabae-5fe7-42a4-90d6-9586b1527378"/>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement textAlignment="Justified" verticalAlignment="Middle" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Қарызды қайтару және сол бойынша Сыйақыны төлеу талабымен таныстым және келісемін /\nС условиями возврата Займа и уплаты Вознаграждения по нему ознакомлен и согласен:\n"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="0" y="13" width="562" height="10" uuid="ca806750-19b7-4c8a-b015-b593e8140b77"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="119" y="0" width="440" height="10" uuid="348b5b44-207d-4cb9-9245-deaad33b022f"/>
+								<textElement verticalAlignment="Middle" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[" _________________________________" + $F{MANAGER_FIO}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="0" y="0" width="119" height="10" uuid="3136908b-87fe-4111-8c8b-ab8ab25586d4"/>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement textAlignment="Justified" verticalAlignment="Middle" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Банктен / От Банка:  "]]></textFieldExpression>
+							</textField>
+						</frame>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" x="329" y="353" width="243" height="30" uuid="5eb291c8-3e19-4e80-a0e1-d50488b6576d"/>
+						<textField pattern="MMMMM dd, yyyy">
+							<reportElement x="40" y="0" width="200" height="30" uuid="1fcc2fb7-4c49-43ac-b65a-d7e898447358"/>
+							<textElement textAlignment="Right">
+								<font fontName="Times New Roman" size="12"/>
+							</textElement>
+							<textFieldExpression><![CDATA["Күні / Дата :" + $F{SDDMY} + " ж./г."]]></textFieldExpression>
+						</textField>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" x="1" y="316" width="558" height="15" uuid="392fee1b-6d0a-433d-b7fa-4a9135a4d818"/>
+						<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+							<reportElement positionType="Float" x="0" y="0" width="556" height="15" uuid="ba95ab44-1ddf-4e10-a6cc-4eb2888db04e"/>
+							<box>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textElement textAlignment="Justified" verticalAlignment="Middle" markup="styled">
+								<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA[($F{SOZ_COUNT}.intValue() > 0 ? "\n" + $F{FIOB_1_I} : "")]]></textFieldExpression>
+						</textField>
+					</frame>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="2" y="319" width="582" height="22" uuid="8a64cf3f-121f-48a8-b19d-e40e63841bc0"/>
+					<frame>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="290" y="2" width="290" height="20" uuid="81e76712-3640-4abf-b7d9-0a211f791a5d"/>
+						<box>
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textField isStretchWithOverflow="true">
+							<reportElement positionType="Float" x="0" y="0" width="290" height="20" uuid="581746ca-a940-46c0-bd99-cbc6fc242c6c"/>
+							<box>
+								<topPen lineWidth="0.0"/>
+								<leftPen lineWidth="0.0"/>
+								<bottomPen lineWidth="0.0"/>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<textElement markup="styled">
+								<font fontName="Times New Roman" size="12"/>
+							</textElement>
+							<textFieldExpression><![CDATA["До заключения Договора банковского займа <b>№" + $F{DOC_NUMBER} + " от " + $F{LOANDATE1} +" г.</b> для выбора метода возврата погашения Займа и уплаты Вознаграждения по нему на ознакомление Заемщику (Созаемщику) были предоставлены графики погашения возврата Займа и уплаты Вознаграждения по нему, рассчитанные различными методами:"]]></textFieldExpression>
+						</textField>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1" y="2" width="289" height="20" uuid="ab353a99-bebb-4eed-bcee-c8903ea23044"/>
+						<box>
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textField isStretchWithOverflow="true">
+							<reportElement positionType="Float" x="0" y="0" width="289" height="20" uuid="bfa8158a-6cd8-4beb-9a7d-c3cb2b90a6f2"/>
+							<box>
+								<rightPen lineWidth="0.0"/>
+							</box>
+							<textElement markup="styled">
+								<font fontName="Times New Roman" size="12"/>
+							</textElement>
+							<textFieldExpression><![CDATA["Қарызды қайтаруды өтеу әдісін тандауға арналған <b>" + $F{LOANDATE1}  + " ж. " +  $F{DOC_NUMBER} +
+"</b> банктік қарыз Шартын жасауға дейін және сол бойынша Қарыз алушының (Бірге Қарыз алушы) танысуына Сыйақыны төлеу Қарызды қайтаруды өтеу кестесі мен сол бойынша сыйақыны төлеу әр түрлі тәсілдермен қарастаралып ұсынылды"]]></textFieldExpression>
+						</textField>
+					</frame>
+				</frame>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="801" splitType="Stretch">
+			<frame>
+				<reportElement positionType="Float" x="20" y="1" width="554" height="795" uuid="8f94dfe7-a4c5-4e03-9f57-3ab55d596d7e">
+					<property name="local_mesure_unitx" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box bottomPadding="10">
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<frame>
+					<reportElement x="0" y="0" width="554" height="690" uuid="d6f1d1e1-c4bf-4c7a-a044-63672ecf533b">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<frame>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="279" y="0" width="270" height="690" uuid="184c16ab-00bc-4ffd-998e-f13f9c47641b">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box leftPadding="0">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="0.0"/>
+						</box>
+						<frame>
+							<reportElement positionType="Float" x="1" y="89" width="268" height="20" uuid="9ec9e02c-a1a1-4c17-acad-297ce24c890a">
+								<property name="local_mesure_unitx" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="ab37038a-823a-449a-b75d-b35fa66f8564"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b>АО ДБ «Альфа-Банк»</b>, именуемое в дальнейшем <b>«Банк»</b>, в лице " + $F{MANA_POS} + " " + $F{MANAGER_FIO} + ", действующего(ей) на основании Доверенности _________, с одной стороны, \nи <b>" + $F{ZAM_FIO} + " ("+ $F{CARD_TYPE_RUS} + $F{CARD_NUMBER} + " выдан " + $F{CARD_BY_RUS} + " от " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} + ")</b>, именуемый(ая) в дальнейшем <b>«Заемщик»</b>,"  + ($F{SOZ_COUNT}.intValue() < 1 ?  " \nс другой стороны, в дальнейшем совместно именуемые «Стороны», заключили настоящий Договор банковского займа (далее – Договор) о нижеследующем:" : 
+"с другой стороны, \n " + $F{FIOB_1_RUS} + ",\nименуемые в дальнейшем <b>«Созаемщик»</b>, с третьей стороны, \nУчитывая солидарную ответственность по Договору, Заёмщик и Созаёмщик далее по тексту совместно именуются «Заёмщик», в дальнейшем совместно именуемые «Стороны», заключили настоящий Договор банковского займа (далее – Договор) о нижеследующем:\n ")]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="119" width="268" height="19" uuid="5b26ffa8-ff27-46e9-91a7-8616f5356e6e">
+								<property name="local_mesure_unitx" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="19" uuid="a1f72f77-7e21-4bbb-a018-10f734bcdcaf"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isItalic="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Понятия терминов и определений, использованных в настоящем Договоре, даны в разделе 12 Договора."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="174" width="268" height="15" uuid="99c2ff17-55fd-4ee5-9260-3f3d82446b56"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="1" y="5" width="267" height="10" uuid="59c7cc1d-0444-453a-9dd3-07e7dfb37e8c">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.1. Целевое назначение Займа – " + ($F{SUM_APPROVED}.intValue() == $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING}.intValue() > 0 ? $F{LOAN_PURPOSE_RUS} : "" )  + ($F{SUM_APPROVED}.intValue() == $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING}.intValue() == 0 ? "потребительские цели" : "" ) + 
+($F{SUM_APPROVED}.intValue() > $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING}.intValue() > 0 ? "рефинансирование" :
+	""
+) + "." + " \n1.2. Банк предоставляет Заемщику банковский заем в сумме <b>" + $F{LOAN_SUM_LST} + " " +  $F{SUM_RUS} + " " + $F{CURRENCY} + "</b>, на условиях его целевого использования, обеспеченности, срочности, возвратности и платности (далее – Заем), на текущий счет Заемщика указанный в разделе 13 настоящего Договора. \n1.3. Дата предоставления Займа: " + $F{NOW_DATE} + " г.\n1.4. Дата погашения Займа: " + ($F{DATE_END_LOAN} != null ? $F{DATE_END_LOAN} : "") + " г."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="191" width="269" height="10" uuid="d38bfd06-4ac1-4ed8-84cf-5f53591e2552"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="269" height="10" uuid="0f5eeda6-6d32-409f-b17a-908d129e92f4"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.5.	Вознаграждение за пользование Займом является фиксированным и составляет: " + "\n▪	" + $F{CR_INTEREST_RATE} + " % " + $F{RATE_N_RUS} + " процентов годовых от суммы Займа в номинальном выражении. " + "\n▪	" + ($F{LOAN_PERCENT_EF} != null ? $F{LOAN_PERCENT_EF} : "") + " % " + $F{RATE_EF_RUS} + " процентов в достоверном годовом эффективном сопоставимом исчислении, рассчитанном в соответствии с Постановлением Правления Национального Банка Республики Казахстан от 26 марта 2012 года № 137 «Об утверждении Правил исчисления ставок вознаграждения в достоверном, годовом, эффективном, сопоставимом исчислении (реальной стоимости) по займам и вкладам» (зарегистрированным в Реестре государственной регистрации нормативных правовых актов под №7663). \n1.6. Погашение Задолженности по Займу производится в наличном или безналичном порядке."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="203" width="268" height="10" uuid="308c80ec-4970-467b-9420-64e309cf2f10"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="41ea6940-589a-43cd-95e3-7db9ffc17d97"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.7. Погашение Задолженности по Займу и Вознаграждению осуществляется  " + $F{PAYOFF_TYPE} + " методом в соответствии с Графиком погашения (Приложение №1), являющимся неотъемлемой частью настоящего Договора. "]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="145" width="268" height="22" uuid="351b80ce-174e-4e44-b89c-88dd83bad401">
+								<property name="local_mesure_unitx" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="22" uuid="f66fc7b0-c39e-471c-8dd8-419e33cabf0a"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[1.	ОБЩИЕ УСЛОВИЯ ДОГОВОРА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="215" width="268" height="10" uuid="c8d623b6-61aa-4df8-b0e3-430405bd0c73"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="02dfe4ef-090a-4924-beff-46194dba1953"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.8. Погашение Задолженности по Займу, установленной Графиком погашения (Приложение №1 к Договору) осуществляется Банком, согласно следующей очередности: 1) сумма штрафных платежей; 2) комиссии Банка; 3) сумма просроченного Вознаграждения; 4) просроченная Задолженность по Основному долгу (Займу); 5) сумма Вознаграждения; 6) сумма Займа. \n1.9. За несвоевременное погашение Задолженности по Займу, Заемщик оплачивает Банку неустойку в размере 0,2% (Ноль целых две десятых) процента от суммы нарушенного Обязательства со дня, следующего за днем нарушения срока платежа за каждый день  нарушения срока платежа, но не более 10 % (Десяти) процентов от суммы Займа за каждый год действия Договора. Задолженность считается просроченной при отсутствии денег на текущем счете Заемщика, указанном в Договоре на момент закрытия операционного дня Банка (23 часа 00 минут по Алматинскому времени), в течение которого Заемщик обязан осуществить погашение по Займу в соответствии с Графиком погашения, являющимся неотъемлемой частью Договора. В случае безакцептного изъятия денег в иной валюте, чем валюта Займа, конвертирование изъятых денег в валюту Займа производится по установленному Банком курсу. \n1.10. За выдачу и пользование Займом, Заемщик выплачивает Банку следующие комиссии:"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="227" width="268" height="10" uuid="3a712c1d-d8ed-48da-9676-52cf6b2fbc31">
+								<property name="local_mesure_unitx" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="0072222d-124d-47c6-bcc8-6819c5ac366f"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["- За предоставление Займа " + $F{LOAN_KOMISS} + " " + $F{LOAN_KOMISS_RUS} + " " + $F{CURRENCY} +", единовременно при предоставлении Займа; \n- За изменение действующих условий кредитования – по решению Кредитного Комитета Банка (мин.0 тенге, макс.200 000 тенге), взимается при осуществлении таких изменений. \nКомиссии, факт взимания которых неизвестен на дату заключения настоящего Договора, учитываются при перерасчете годовой эффективной ставки вознаграждения по требованию Заемщика после фактического платежа.\n" + "1.11. Погашение Задолженности по Договору осуществляется путем внесения наличных денег через кассу Банка на текущий счет Заемщика, либо другими способами, не противоречащими законодательству Республики Казахстан. Вознаграждение по Займу уплачивается Заемщиком ежемесячно, за фактическое количество дней пользования Займом. Последний платеж Вознаграждения производится в день погашения Задолженности по Займу вместе с суммой Основного долга. Основной долг по Займу выплачивается – ежемесячно с любого банковского счета Заемщика, до полного погашения Задолженности.\n" + "1.11.1. Под датой уплаты Вознаграждения и суммы Займа понимается дата зачисления суммы Вознаграждения на счет Заемщика. Начисление Вознаграждения производится за фактическое количество дней использования Займом, при этом год принимается равным 360 календарным дням.\n" + "1.11.2. Начисление Вознаграждения производится на сумму Основного долга по Займу, начиная со дня, следующего за днем предоставления Займа и  заканчивается в день полного погашения Займа.\n" + "1.12. Обеспечением исполнения Заемщиком обязательств по Договору перед Банком является: \n" +  "•	Неустойка, предусмотренная настоящим Договором.\n" + "1.13. Банк имеет право досрочно предъявить к взысканию в полном объеме или частично сумму Займа, сумму Вознаграждения по Займу, а также сумму иных платежей, подлежащих уплате в соответствии с условиями настоящего Договора и законодательством Республики Казахстан, в следующих случаях:\n" + "▪	при отсутствии у Заемщика денег для осуществления очередного платежа по Займу и отсутствии перспектив их поступления;\n" + "▪	если на имущество Заемщика, либо на его деньги, хранящиеся на счетах, наложен арест или иным образом обращено взыскание (либо существует угроза возникновения такого рода последствий);\n" + "▪	если Заемщик каким-либо образом уклоняется от предоставления Обеспечения по Займу в соответствии с условиями настоящего Договора и Договоров о залоге;\n" + "▪	если хотя бы одно из заявлений и гарантий, сделанных Заемщиком в настоящем Договоре, было недействительно или стало недействительным в период действия настоящего Договора;\n" + "▪	предоставления недостоверных сведений об Обеспечении, а также при нарушении условий Договора о залоге;\n" + "▪	нарушения Заемщиком любого из обязательств по Договору и/или Заемщиком и/или третьим лицом, предоставившим Обеспечение, по Договорам о залоге, Договорам гарантии;\n" + "▪	при утрате Обеспечения;\n" + "▪	не целевого использования Займа;\n" + "▪	в иных случаях, которые по обоснованному мнению Банка, могут негативно отразиться на платежеспособности Заемщика, возможности выполнения им своих Обязательств по настоящему Договору.\n" + "1.13.1. В случаях, перечисленных в пункте 1.13. настоящего Договора, Банк вправе предпринять все предусмотренные законодательством Республики Казахстан меры, необходимые и достаточные для защиты его прав и интересов, при этом все расходы, понесенные Банком в этой связи, относятся на счет Заемщика.\n" + "1.14. Настоящий Договор вступает в силу с даты его подписания Сторонами и прекращает свое действие после полного надлежащего выполнения Заемщиком всех Обязательств перед Банком по настоящему Договору."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="243" width="268" height="30" uuid="95ce3829-7c6c-4571-9ede-490b0a5edf15"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="30" uuid="af988ac0-1709-4130-9376-b86ccf26cbf6"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[2. ОТВЕТСТВЕННОСТЬ СТОРОН ЗА НАРУШЕНИЕ ОБЯЗАТЕЛЬСТВ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="0" y="276" width="268" height="10" uuid="d66a438e-4a89-4069-acec-e533abb13694">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="6311471a-9e4c-4f62-a98e-1bfadc0854bb"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["2.1. В случае нарушения условий настоящего Договора, Стороны несут ответственность в соответствии с законодательством Республики Казахстан и положениями настоящего Договора.\n" + "2.2. В случае выявления не целевого использования Займа, Банк вправе требовать от Заемщика уплаты штрафа в размере 5% (Пять) процентов от суммы не целевого использования Займа и предъявить сумму Займа к досрочному взысканию.\n" + "2.3. В случае неисполнения или ненадлежащего исполнения Заемщиком Обязательств по Договору, Банк вправе требовать от Заемщика выплаты неустойки, предоставления дополнительного Обеспечения, досрочного возврата Займа и уплаты Вознаграждения, взыскивать Задолженность в судебном и внесудебном порядке, обратить взыскание на Обеспечение как в судебном, так и в принудительном внесудебном порядке (в безакцептном порядке), изменять очередность погашения Задолженности Заемщика по Договору, изменять размер неустойки по соглашению Сторон, расторгнуть Договор в одностороннем порядке, в безакцептном порядке взыскивать деньги с банковских счетов Заемщика, а также применить иные меры, предусмотренные законодательством Республики Казахстан.\n" + "2.4. В случае осуществления  полного или частичного досрочного погашения Займа в течение 12 (двенадцати) месяцев с даты выдачи Займа Заемщик оплачивает штраф в размере 10 (десять) процент(ов) от суммы погашаемого основного долга, взимается при осуществлении погашения, за исключением случая предусмотренного в п. 3.1.1. Договора.\n" + "2.5. В случае невыполнения или ненадлежащего выполнения пунктов 8.1.9 " +($F{IS_REFINANCING}.intValue() > 0 && $F{SPEC_COND}.intValue() > 0 && $F{REF_BANK} != null ? "и/или 8.1.10" : "") + ($F{NAME_DOC_FOR_BANK} != null && $F{DAY_FOR_DOC_FROM_OTHER_BANK}.intValue() > 0 ? " и/или 8.1.11" : "" ) +" Договора, Заемщик оплачивает неустойку в размере 0,05 (ноль целых пять сотых)процентов от суммы Займа   за каждый день просрочки исполнения обязательств.\n"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="288" width="268" height="20" uuid="00f624f2-ff8f-4a49-92e4-a54a3b916ce9"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="8e7e09a5-180e-40ce-be44-495f69285ef5"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[3. ПРАВА ЗАЕМЩИКА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="315" width="268" height="10" uuid="68047785-00fb-4fc3-9321-984bd3b18701">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="58900d32-27c1-43cd-958f-b47ef9f357bd"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["3.1. Заемщик вправе:\n" + "3.1.1. в случае получения Займа, не связанного с осуществлением предпринимательской деятельности, на приобретение товаров, работ и услуг (потребительские цели), в течение 14 (Четырнадцати) календарных дней с даты заключения Договора, вернуть Заем с оплатой Вознаграждения, начисленного Банком с даты предоставления Займа, без уплаты неустойки/ штрафных санкций за возврат Займа;\n" + "3.1.2. в случае, если дата погашения Основного долга или Вознаграждения выпадает на выходной, либо праздничный день, произвести оплату Вознаграждения или Основного долга в следующий за ним рабочий день без уплаты неустойки и иных видов штрафных санкций;\n" + "3.1.3. по своему заявлению получить в срок не более трех рабочих дней, безвозмездно, не чаще одного раза в месяц в письменной форме информацию о распределении (на Основной долг, Вознаграждение, комиссии, неустойки, штрафы и другие подлежащие уплате суммы) очередных поступающих денег в счет погашения Задолженности по Договору;\n" + "3.1.4. по своему заявлению о частичном или полном досрочном возврате Банку предоставленного по Договору Займа – безвозмездно в срок не более трех рабочих дней получить в письменной форме сведения, о размере причитающейся к возврату суммы с разбивкой на Основной долг, Вознаграждение, комиссии, неустойки, штрафы и другие подлежащие уплате суммы с указанием просроченных платежей;\n" + "3.1.5. осуществить полное досрочное  погашение суммы Займа и начисленного Вознаграждения за пользование Займом или частичное досрочное погашение Займа без уплаты штрафных санкций, за исключением полного досрочного погашения суммы Займа и начисленного Вознаграждения за пользование Займом или частичного досрочного погашения Займа в срок до 1 (Одного) года с даты получения Займа, с письменным уведомлением Банка в срок не менее, чем за 3 (Три) рабочих дня до даты предполагаемого погашения и при условии подписания Сторонами соответствующих документов и/или предоставления Банку заявления на досрочное погашение задолженности по кредитному продукту;\n" + "3.1.6. письменно обратиться в Банк при возникновении спорных ситуаций по получаемым услугам и получить ответ в сроки, установленные Законом Республики Казахстан от 12 января 2007 года «О порядке рассмотрения обращений физических и юридических лиц»;\n" + "3.1.7. использовать полученный Заем в соответствии с условиями настоящего Договора;\n" + "3.1.8. письменно обратиться к банковскому омбудсману в соответсвии с Законом Республики Казахстан от 31 августа 1995 «О банках и банковской деятельности в Республике Казахстан», для урегулирования разногласий, возникших из настоящего Договора."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="330" width="268" height="20" uuid="cf4fa95a-9270-4302-b457-5904ed079ffe">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="345cf49d-4d99-46f5-b6c5-c290e5c20203"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[4. ПРАВА БАНКА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="370" width="268" height="20" uuid="b3f8ef38-5e96-49aa-bca9-5a65d896caa5">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="c177cef0-449e-4296-a444-cfb51da0e9e7"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[5. ОБЯЗАННОСТИ БАНКА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="355" width="268" height="10" uuid="19d34a4d-d929-4a5a-94c4-4e2ff8fcd6f8">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="cb8b993d-a617-4c9d-82a6-ae22cd993a88"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["4.1. Банк вправе:\n" + "4.1.1. в одностороннем порядке изменять условия Договора в сторону их улучшения для Заемщика;\n" + "4.1.2. требовать досрочного возврата суммы Займа и Вознаграждения по нему при нарушении Заемщиком срока, установленного для возврата очередной части Займа и (или) выплаты Вознаграждения, более чем на сорок календарных дней;\n" + "4.1.3. при недостатке денег, полученных Банком от реализации Залогового имущества для погашения Задолженности Заёмщика по настоящему Договору согласно Договору о залоге, обратить взыскание на иное имущество Заёмщика в соответствии с законодательством Республики Казахстан;\n" + "4.1.4. в случае неисполнения или ненадлежащего исполнения Заемщиком своих Обязательств по выплате суммы начисленного Вознаграждения и образования просроченной Задолженности, прекратить начисление Вознаграждения;\n" + "4.1.5. возобновить начисление Вознаграждения в любое время с даты прекращения начисления Вознаграждения;\n" + "4.1.6. приостанавливать и возобновлять начисление штрафных санкций за просрочку платежей по погашению, как Основного долга, так и Вознаграждения;\n" + "4.1.7. в безакцептном порядке списывать суммы Вознаграждения, Займа, неустойки, комиссии и иные платежи по Договору, в том числе расходы по нотариальному удостоверению верности копий Договора, прилагаемых к платежным документам Банка со счетов Заемщика, открытых в других банках и/или организациях, осуществляющих отдельные виды банковских операций, на территории Республики Казахстан и за ее пределами, исполняемых в безакцептном порядке платежных требований-поручений или иных документов;\n" + "4.1.8. в случае смерти Заемщика предъявить свои требования, вытекающие из Обязательств Заемщика по настоящему Договору, к его наследникам в соответствии с законодательством Республики Казахстан;\n" + "4.1.9. запрашивать в банках и/или организациях, осуществляющих отдельные виды банковских операций, на территории Республики Казахстан и за ее пределами, справки о наличии и номерах банковских счетов Заемщика;\n" + "4.1.10. изымать суммы Задолженности (независимо от валюты Займа) в безакцептном и бесспорном порядке путем предъявления к банковским счетам Заемщика, открытым в любых других банках (организациях, осуществляющих отдельные виды банковских операций, и иных кредитных организациях) на территории Республики Казахстан и за ее пределами, исполняемых в безакцептном порядке платежных требований-поручений (с приложением необходимых документов). При достаточности денег на банковском счете Заемщика платежное требование-поручение Банка должно быть исполнено на сумму денег, указанную в нем, а для изъятия всей суммы денег, указанной в платежном требовании-поручении Банка – в случае недостаточности денег - храниться в Картотеке к банковскому счету Заемщика."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="395" width="268" height="10" uuid="d0c66c82-45d4-4545-813e-f98d01aad803">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="a80c978e-dc58-4ed6-85d9-46e2cab627f9"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["5.1. Банк обязан:\n5.1.1. в течение четырнадцати календарных дней с даты заключения Договора принять сумму Займа, с удержанием Вознаграждения, начисленного с даты предоставления Займа, без удержания неустойки или иных видов штрафных санкций за возврат Займа;\n5.1.2. по заявлению Заемщика безвозмездно не чаще одного раза в месяц представить в срок не более трех рабочих дней в письменной форме информацию о распределении (на Основной долг, Вознаграждение, комиссии, неустойки, штрафы и другие подлежащие уплате суммы с указанием просроченных платежей) очередных поступающих денег в счет погашения Задолженности по Договору;\n5.1.3. по заявлению Заемщика о частичном или полном досрочном возврате Банку, предоставленному по Договору Займа – безвозмездно в срок не более трех рабочих дней сообщить ему размер причитающейся к возврату суммы с разбивкой на Основной долг, Вознаграждение, комиссии, неустойки, штрафы и другие подлежащие уплате суммы с указанием просроченных платежей;\n5.1.4. уведомлять Заемщика в течение 30 (тридцати) рабочих дней о просрочке исполнения Обязательств и необходимости внесения платежей по Договору, способом, указанным в пункте 10.1. Договора;\n5.1.5. рассмотреть и подготовить письменный ответ на письменное обращение Заемщика в сроки, установленные Законом Республики Казахстан 12 января 2007 года «О порядке рассмотрения обращений физических и юридических лиц».\n5.1.6. при уступке права требования по Договору третьим лицам (если право переуступки предусмотрено Договором) в течение трех рабочих дней письменно уведомить об этом Заемщика (его уполномоченного представителя) с указанием полного объема переданных прав требования, остатка текущей и просроченной Задолженности с разбивкой на Основной долг, Вознаграждение, комиссии, неустойки и иные виды подлежащих уплате сумм, а также назначения дальнейших платежей по погашению Займа – Банку или лицу, которому переданы права требования."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="415" width="268" height="20" uuid="5a81f77a-bced-4996-82b6-213a43710270">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="9377a272-68cf-4463-8690-b4a484b6ed89"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[6. ОГРАНИЧЕНИЯ ДЛЯ БАНКА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="440" width="268" height="10" uuid="76279eea-2b55-4341-9f7b-c635046b2862">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="740036bb-8de6-4df1-951c-48889b00da31"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["6.1.Банк не вправе:\n6.1.1. в одностороннем порядке изменять в сторону увеличения, установленные на дату заключения Договора с Заемщиком размеры и порядок расчета тарифов, комиссий и других расходов по обслуживанию Займа;\n6.1.2. в одностороннем порядке вводить новые виды комиссий в рамках заключенного Договора;\n6.1.3. ограничивать Заемщика, Залогодателя в выборе страховой организации и (или) оценщика, на проведение оценки в целях определения рыночной стоимости имущества, являющегося Обеспечением, а также возлагать на Заемщика обязанность страховать свою жизнь и здоровье;\n6.1.4. взимать неустойку или иные виды штрафных санкций за досрочное погашение Займов, за исключением случаев частичного досрочного погашения или полного досрочного погашения Основного долга до одного года с даты получения Займа;\n6.1.5. взимать неустойку или иные виды штрафных санкций в случае, если дата погашения Основного долга или Вознаграждения выпадает на выходной, либо праздничный день, и уплата Вознаграждения или Основного долга производится в следующий за ним рабочий день."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="455" width="268" height="32" uuid="f78ccd12-bb8a-4759-936b-f9aca56e3c07">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="32" uuid="6bab4328-0a45-47a9-810d-530660d2b93e"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[7.ПОРЯДОК ВНЕСЕНИЯ ИЗМЕНЕНИЙ В УСЛОВИЯ ДОГОВОРА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="490" width="268" height="10" uuid="41f0d610-d148-4f97-8b1c-afe1ed636d58">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="4314f279-e1e2-493f-baae-dc61659d8053"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["7.1. Условия настоящего Договора не могут быть изменены Сторонами в одностороннем порядке, если иное не предусмотрено законодательными актами Республики Казахстан и настоящим Договором. "]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="505" width="268" height="20" uuid="78f80bad-5076-4fec-a596-d4ce5caba80b">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="bb065f53-1832-40a7-97c6-1919ea26c0d9"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[8. ОБЯЗАННОСТИ ЗАЕМЩИКА]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="533" width="268" height="10" uuid="2ec35e15-0231-4670-be61-444e19f023d2"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="39bac5c4-a572-4df1-9e43-a4d6668fd9ff"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["8.1.Заемщик обязуется:\n8.1.1. использовать Заем, предоставленный Банком, по целевому назначению;\n8.1.2. своевременно и в полном объеме возвращать полученный Заем и уплачивать Вознаграждение за его пользование. Сумма Займа возвращается, и Вознаграждение за пользование Займом уплачивается в сроки, установленные настоящим Договором;\n8.1.3. своевременно извещать Банк обо всех обстоятельствах, способных повлиять на своевременное погашение Займа и Вознаграждения по нему;\n8.1.4. допускать работников Банка к проверке Обеспечения, предоставлять по их требованию необходимые документы для проверки целевого использования Займа, его обеспеченности, до полного погашения Задолженности по Займу. Количество проверок и их сроки определяются Банком и согласуются с Заемщиком;\n8.1.5. оплачивать комиссии Банка, перечень которых указан в пункте 1.10. настоящего Договора;\n8.1.6. в случае необходимости, по первому требованию Банка предоставить дополнительное Обеспечение исполнения своих Обязательств по настоящему Договору, путем заключения договоров о залоге, предоставления гарантий и поручительств третьих лиц.\n8.1.8. Для расчета ставки вознаграждения в достоверном годовом эффективном сопоставимом исчислении в течение 3 (три) рабочих дней с даты проведения оценки и осуществления страхования Обеспечения письменно предоставлять в Банк информацию обо всех своих затратах связанных со страхованием и оценкой Обеспечения.\n8.1.9. В случае получения займов/кредитов в Банках второго уровня и/или Организациях осуществляющих отдельные виды банковских операций, в течении 5 (пяти) календарных дней письменно уведомить об этом Банк." + ($F{IS_REFINANCING}.intValue() > 0 && $F{SPEC_COND}.intValue()  > 0 && $F{REF_BANK} != null ? "\n8.1.10. Не позднее " +  $F{SPEC_COND} + " рабочих дней после выдачи Займа предоставить в Банк документы, подтверждающие полное досрочное погашение задолженности в " + $F{REF_BANK} + "." : "") + ($F{NAME_DOC_FOR_BANK} != null && $F{DAY_FOR_DOC_FROM_OTHER_BANK}.intValue() > 0 ? "\n8.1.11. Не позднее "  +  $F{DAY_FOR_DOC_FROM_OTHER_BANK} + " рабочих дней после выдачи Займа предоставить следующий документ:- " +  $F{NAME_DOC_FOR_BANK}  + ".": "")+ "\n8.1.12. Заемщик обязуется в случаях и размерах установленных настоящим Договором по первому требованию Банка выплатить последнему неустойку, штрафы, комиссии."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="558" width="268" height="6" uuid="6c51cb4c-8fda-4c0f-a968-e157f6062704"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="7e1f28b8-6b37-4f55-b996-35e5dc2b4d14"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["9. РАЗНОГЛАСИЯ И СПОРЫ СТОРОН"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="575" width="268" height="6" uuid="6d5b42cb-e5b3-4442-8980-983e360034a9"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="bbf317c1-0245-4114-93fa-e211b5a9cdd8">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["9.1. Разногласия, возникшие в процессе выполнения условий настоящего Договора, в досудебном порядке рассматриваются Сторонами путем проведения переговоров в целях выработки взаимоприемлемых решений.\n9.2. Споры по вопросам, не урегулированным Сторонами путем переговоров, разрешаются в порядке, установленном законодательством Республики Казахстан, в суде по месту нахождения Банка или его филиала."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="595" width="268" height="6" uuid="86793a10-a24f-4a8d-95c9-8bb9506aab07">
+								<property name="local_mesure_unitx" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.x" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="9d3a6991-74f0-417e-ad60-13b5575a4ff2"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["10. ДОПОЛНИТЕЛЬНЫЕ УСЛОВИЯ"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="605" width="268" height="6" uuid="8518e236-16fd-4cfb-a9a3-a7f68b51ffb1"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="da47bb45-7838-4fbf-ac09-a3006eae9e24">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["10.1. Все уведомления, требования и иные документы в рамках условий настоящего Договора считаются направленными надлежащим образом и полученными Сторонами при условии их вручения  адресату (с отметкой о вручении) либо направления по почте – по адресу Сторон, указанному в Договоре.\n10.2. При отсутствии сообщения об изменении адреса Заемщика, указанного в Договоре, все уведомления, требования и иные документы в рамках условий Договора направляются по последнему известному Банку адресу Заемщика, и считаются доставленными, даже если Заемщик по этому адресу больше  не  проживает.\n10.3. Заемщик обязуется оплачивать услуги Банка, с предоставлением Банку полного права на безакцептное списание комиссии Банка в валюте Договора. В случае несвоевременной уплаты комиссии, Банк безакцептном порядке списывает суммы  комиссий с любых счетов Заемщика в иной валюте, чем валюта Договора, при этом конвертирование изъятых денег в валюту комиссионного вознаграждения производится по установленному Банком курсу;\n10.4. Заемщик не вправе передавать свои права по настоящему Договору третьей стороне без письменного согласия Банка.\n10.5. Подписанием Договора Заемщик дает Банку согласие на предоставление третьим лицам, в том числе работодателю Заемщика любой информации и документов, в том числе составляющих банковскую тайну, связанных с предоставленным в рамках настоящего Договора Займом, в случае не  неисполнения и/или ненадлежащего исполнения Заемщиком своих обязательств по настоящему Договору, а также в случаях, когда предоставление такой информации третьим лицам, в том числе банкам второго уровня, организациям осуществляющим страховую, аудиторскую, оценочную деятельность, а также внешним экспертам, привлеченным Банком необходимо для обслуживания Займа или иным целям. Согласие Заемщика, указанное в настоящем пункте, дано в момент его личного присутствия в Банке.\n10.6. Настоящий Договор подписан на государственном и русском языках, и вручен каждой из Сторон. В случае возникновения расхождений в текстах, приоритет имеет текст на русском языке.\n10.7. Договоры о залоге, Договоры гарантии и все Приложения и дополнения к настоящему Договору являются неотъемлемой частью настоящего Договора.\n10.8. Настоящий Договор подписан Заемщиком во время личного присутствия последнего в Банке.\n10.9. Настоящим Заемщик предоставляет Банку свое согласие на предоставление и получение последним из базы данных кредитных бюро сведений о Заемщике, заключаемой сделке, информации, связанной с исполнением Заемщиком и Банком своих Обязательств по настоящему Договору, а также иных сведений, предоставление которых может понадобиться, в соответствии с законодательством о кредитных бюро и формировании кредитных историй.\n10.10. Неустойка начисляется Банком в валюте Договора. В случае безакцептного изъятия неустойки в иной валюте, чем валюта Займа, конвертирование изъятых денег в валюту Займа производится по курсу, установленному Банком на день оплаты.\n10.11. В случае списания денег со счетов Заемщика в других банках и/или организациях, осуществляющих отдельные виды банковских операций, на территории Республики Казахстан и за ее пределами Заемщик возмещает все затраты Банка, связанные со списанием в безакцептном и бесспорном порядке в полном объеме.\n10.12. Наряду с условиями, предусмотренными настоящим Договором, при его исполнении Стороны руководствуются законодательством Республики Казахстан.\n10.13. Неисполнение и/или ненадлежащее исполнение Заемщиком, Залогодателем, Гарантом Обязательств по Договорам о залоге, Договорам гарантии рассматривается как неисполнение и/или ненадлежащее исполнение Обязательств по Договору." + ( $F{IS_REFINANCING}.intValue() > 0 && $F{REF_BANK} != null  ? "\n10.14. Выдачу Займа осуществить с последующим безналичным переводом по заявлению Заемщика в " + $F{REF_BANK} + "." : "")]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="620" width="268" height="6" uuid="b506a098-fd38-4a78-b28d-1f34bb9aa077"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="8eead31b-f26d-421a-85ab-93ba4651be97"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["11. ЗАЯВЛЕНИЯ И ГАРАНТИИ"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="632" width="268" height="6" uuid="43e8eff9-70e4-4e14-be3e-eb30782f000a"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="b07ca5ee-7b52-40e1-93d0-eb16acfa6939">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b><u>Заемщик заявляет и гарантирует, что:</u></b>\n▪	он имеет право от своего имени заключать настоящий Договор;\n▪	настоящий Договор представляет собой действительное и имеющее юридическую силу Обязательство Заемщика, подлежащее исполнению в соответствии с условиями, настоящего Договора;\n▪	на момент подписания настоящего Договора он не имеет обязательств по невыплаченным налогам;\n▪	на момент подписания настоящего Договора он не имеет просроченной Задолженности по обязательствам перед третьими лицами по Займам, Кредитам, ценным бумагам, иным долговым обязательствам;\n▪	Заемщик, в течение всего срока действия настоящего Договора предоставляет Банку полное право на безакцептное списание сумм Вознаграждения и/или Основного долга и/или комиссий и/или неустойки и/или иных платежей предусмотренных Договором путем прямого дебетования всех банковских счетов Заемщика в валюте Договора в сроки, оговоренные в Графиках погашения (Приложение №1 к настоящему Договору). Документом, на основании которого будет осуществляться прямое дебетование банковского счета Заемщика, является настоящий Договор.\n▪	Заемщик обязуется обеспечить необходимую сумму денег в валюте Договора на счете, с которого будет проводиться списание, согласно Графику погашения (Приложение №1 к Договору).\n▪	ознакомлен и согласен с Тарифами, Комиссиями и штрафными санкциями Банка.\n▪	не находится под влиянием заблуждения, обмана, насилия, угрозы, злонамеренного соглашения или стечения тяжелых обстоятельств, понимает суть подписываемого Договора и его условия не являются для Заемщика кабальными.\n▪	подписанием настоящего Договора Заемщик предоставляет Банку безусловное согласие на безакцептное списание денег и прямое дебетование с банковских счетов Заемщика, открытых в любых банках и/или организациях, осуществляющих отдельные виды банковских операций, на территории Республики Казахстан и за ее пределами сумм, связанных с исполнением обязательств по Договору, в том числе суммы Задолженности, неустойки, комиссии и иные платежи по Договору.\n▪	подписанием настоящего Договора Заемщик дает согласие на получение sms сообщений, телефонных звонков, а также получения писем посредством электронной почты, касающихся информации о продуктах и услугах Банка, несвоевременного исполнения Обязательств и необходимости внесения плановых платежей по Договору, а также иной информации от Банка."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="645" width="268" height="6" uuid="58c9725a-32d0-45d7-be92-a693674e7a86"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="7c2eff9d-1765-4587-8ffc-301cf75940a8">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b>     12. ОПРЕДЕЛЕНИЯ И ТОЛКОВАНИЕ</b>\nЕсли иное прямо не оговорено Договором, термины и определения с заглавной буквы, используемые в Договоре и Приложениях к ним, имеют следующие значения:\n<b>Заем/банковский заем</b> – сумма денег  предоставляемая Банком Заемщику на условиях платности, срочности, возвратности, обеспеченности.\n<b>Вознаграждение</b> – сумма денег, которую Заемщик обязуется уплатить Банку за пользование Займом, исходя из порядка расчета и размера ставки, указанной Договоре.\n<b>Срок Договора</b> – срок, определенный в Договоре, не позднее которого все суммы Задолженности должны быть погашены (выплачены) Банку.\n<b>Задолженность</b> – сумма Займа, полученная Заемщиком по Договору и непогашенная (невозвращенная) Заемщиком, а также иные суммы (Вознаграждение, комиссии, неустойка, штрафы, предусмотренные Договором т.д.), подлежащие оплате Заемщиком Банку по условиям Договора на ту или иную конкретную дату и неуплаченные (непогашенные) Заемщиком.\n<b>Обеспечение</b> – способы обеспечения надлежащего исполнения Заемщиком Обязательств по Договору (включая, но не ограничиваясь, указанное в пункте 1.12. Договора), – все вместе и каждое в отдельности.\n<b>Рабочий день</b> – Операционный день Банка.\n<b>Обязательства</b> – обязательства, принятые на себя Заемщиком по Договору, включая обязательства по возврату Займа, уплате Вознаграждения, по погашению Задолженности, и иные обязанности Заемщика перед Банком по Договору, в том числе обязанности, которые могут или будут возникать в будущем.\n<b>Основной долг</b> – сумма денег указанная в пункте 1.2. Договора, предоставленная Банком и полученная Заемщиком по настоящему Договору.\n<b>Операционный день</b> - период времени, в течение которого Банком осуществляется прием указаний о переводе денег и распоряжений о приостановлении либо об отзыве таких указаний от клиентов и передача им сообщений, связанных с осуществлением переводов денег в их пользу;\nСсылки в Договоре на пункты или приложения являются ссылками на пункты или приложения Договора, если текстом Договора не предусмотрено иное."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="661" width="268" height="6" uuid="f8df5e31-7949-450a-a26e-0236a46bf2c0"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="6" uuid="177a889f-db86-44da-a207-d1b7d5d908a7">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b>   13. АДРЕСА, РЕКВИЗИТЫ И ПОДПИСИ\n                               СТОРОН</b>\n<b>Банк:	АО  ДБ «Альфа-Банк»\nБИН 941240000341</b>\nРеквизиты:	Республика Казахстан, г. Алматы, ул. Масанчи 57а Кор./счет  SWIFT  - ALFAKZKA, 786418848 with JP Morgan Chase Bank N.A., New York, USA SWIFT – CHASUS33, (в долларах США) кор./счет KZ71125KZT1001300213 в  НБ РК  БИК NBRKKZKX (в тенге)\nт. +7(727) 244 75 75.\n\n" + "<b>Заемщик: " + $F{ZAM_FIO} + "\nИИН</b> " + $F{IIN} + "\n<b>" + $F{CARD_TYPE_RUS} + $F{CARD_NUMBER} + "\nвыдан " + $F{CARD_BY_RUS} +" от " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} + "\nАдрес регистрации: </b>" + $F{ADR_PROPIS} + "\n<b>Адрес фактического проживания: </b>" + $F{ADR_FACT} + "\n<b>Тел: </b>" + $F{PHONE} + "\n<b>Текущий счет: </b>" + $F{ACC}  + "(KZT) в АО ДБ «Альфа-Банк».\n"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="2" y="672" width="268" height="5" uuid="ab612dc5-c334-4538-b29d-7b2b8cce6c97"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="5" uuid="5d2a19ea-0395-4001-be8a-b798522d21df">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+									<property name="local_mesure_unitwidth" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="local_mesure_unitheight" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[($F{SOZ_COUNT}.intValue() > 0 ? $F{FIOB_2_RUS} + "\n" : "\n")]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="0" y="0" width="270" height="73" uuid="483d168c-9da3-472d-9903-8f8e8f8c87f3"/>
+							<textField>
+								<reportElement positionType="Float" x="0" y="0" width="270" height="30" uuid="da95de3c-cb8f-41b2-84a8-5c639a515ac0"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["ДОГОВОР  БАНКОВСКОГО ЗАЙМА\n №" + $F{DOC_NUMBER}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement positionType="Float" x="0" y="59" width="130" height="14" uuid="18dc1c99-3d55-4d69-bb34-bda1dde207a6"/>
+								<textElement textAlignment="Left" markup="html">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["г. " + $F{CITY}]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement positionType="Float" x="139" y="59" width="130" height="14" uuid="3f0e13e1-f5d5-4e2c-afa9-cf8808fe1757"/>
+								<textElement textAlignment="Right" markup="html">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{LOANDATE1} + "г."]]></textFieldExpression>
+							</textField>
+						</frame>
+					</frame>
+					<frame>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="272" height="690" uuid="11a05802-686a-4076-9c5f-962c969aabc9">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0"/>
+							<leftPen lineWidth="0.0"/>
+							<bottomPen lineWidth="0.0"/>
+							<rightPen lineWidth="0.0"/>
+						</box>
+						<frame>
+							<reportElement positionType="Float" x="0" y="0" width="270" height="73" uuid="56adc807-775a-4d48-a508-bd6c598f15b5"/>
+							<textField>
+								<reportElement positionType="Float" x="3" y="0" width="263" height="30" uuid="760b5cff-0fa4-4050-a380-6b08f7ca80e8">
+									<property name="local_mesure_unitwidth" value="pixel"/>
+								</reportElement>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["№ " + $F{DOC_NUMBER} + "\n" + "БАНКТІК ҚАРЫЗ ШАРТЫ"]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement positionType="Float" x="0" y="59" width="123" height="14" uuid="cd89f08a-ef00-467e-bc8f-79d6f50bd3e9"/>
+								<textElement textAlignment="Left" markup="html">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{CITY} + " қ."]]></textFieldExpression>
+							</textField>
+							<textField>
+								<reportElement positionType="Float" x="147" y="59" width="123" height="14" uuid="57b3abc6-67ff-436f-972b-50732bacedec"/>
+								<textElement textAlignment="Right" markup="html">
+									<font fontName="Times New Roman" size="12" isBold="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{LOANDATE1} + " ж."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="89" width="268" height="20" uuid="b5a17f56-a5b3-4d3e-aca5-fb1766730172"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="52bec24e-29e6-4d99-8746-b17420c1103a"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[($F{SOZ_COUNT}.intValue() < 1 ? "<b>АҚ ЕБ «Альфа-Банк»</b>, бұдан ары <b>«Банк»</b>, деп аталып, " + $F{MANA_POS}+ " "+$F{MANAGER_FIO} +",  ________ Сенімхат негізінде әрекет етуші, бір тараптан және  \n<b>" + $F{ZAM_FIO} + " (" + $F{CARD_TYPE_KAZ} + $F{CARD_NUMBER} + " " +  $F{CARD_BY_KAZ} +" берілген " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} + ")</b>, бұдан ары <b>«Қарыз алушы»</b>, екінші тараптан, бұдан ары «Тараптар» деп аталып, төмендегілер туралы осы банктік қарыз Шартын (бұдан ары – Шарт) жасасты:" : 
+"<b>АҚ ЕБ «Альфа-Банк»</b>, бұдан ары <b>«Банк»</b>, деп аталып, "+ $F{MANA_POS}+ " " +$F{MANAGER_FIO} +" атынан, ________ Сенімхат негізінде әрекет етуші, бірінші тараптан,  \nжәне <b>" + $F{ZAM_FIO} + " (" + $F{CARD_TYPE_KAZ} + $F{CARD_NUMBER} + " "+ $F{CARD_BY_KAZ} +" берілген " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} + ")</b>, бұдан ары <b>«Қарыз алушы»</b>, екінші тараптан," +  $F{FIOB_1_KAZ} +",\nбұдан ары <b>«Бірге қарыз алушы»</b>, үшінші тараптан, Шарт бойынша ынтымақтастық жауапкершілікті ескере отырып, Қарыз алушы мен Бірге қарыз алушы бұдан ары бірге «Қарыз алушы» деп аталады, бұдан ары «Тараптар» деп аталып, төмендегілер туралы осы банктік қарыз Шартын (бұдан ары – Шарт) жасасты: ")]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="119" width="268" height="19" uuid="96d303fc-b85b-4677-9118-69affd05d815"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="19" uuid="45ed6402-2abd-4e0d-a7d6-9d75dab22191"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isItalic="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Осы Шартта қолданылатын терминдер мен анықтамалардың түсініктері Шарттың 12 бөлімінде берілген.\n"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="145" width="268" height="22" uuid="b71cdd09-8b6f-4875-93eb-6a7e100b60b9"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="22" uuid="ab79ecfe-146b-4400-aacc-a41f19eda228"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[1.	ШАРТТЫҢ ЖАЛПЫ ТАЛАПТАРЫ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="174" width="268" height="15" uuid="eea46794-32d6-438f-a106-c16f0a13abe8"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="15" uuid="0919bb15-9f62-4091-ba22-e4c1a9adca37"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.1. Қарыздың толық атауы – " +($F{SUM_APPROVED}.intValue() == $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING} != null && $F{IS_REFINANCING}.intValue() > 0 ? $F{LOAN_PURPOSE_KAZ}+ "." : "" )  
++ ($F{SUM_APPROVED}.intValue() == $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING}.intValue() == 0 ? "тұтынушылық мақсаттарға." : "" ) 
++ ($F{SUM_APPROVED}.intValue() > $F{LOAN_SUM_LST}.intValue() && $F{IS_REFINANCING} != null && $F{IS_REFINANCING}.intValue() > 0 ? "қайта қаржыландыру." : "" ) 
++
+ " \n1.2. Банк Қарыз алушыға <b>" + $F{LOAN_SUM_LST} + " " + $F{SUM_KAZ} + " " + $F{CURRENCY} + "</b>, сомасымен оның мақсатты орындалуы, қамтамасыз етілуі, жеделдік және төлемдік талаптармен, осы Шарттың 13 бөлімінде көрсетілген Қарыз алушының ағымдағы шотына  банктік қарыз (бұдан ары – Қарыз) береді.\n1.3. Қарызды ұсыну мерзімі: " + $F{NOW_DATE} + " ж.\n1.4. Қарызды өтеу мерзімі: " + ($F{DATE_END_LOAN} != null ? $F{DATE_END_LOAN} : "") + " ж."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="191" width="269" height="10" uuid="55075652-1877-489c-8828-d52eaec9f5a9"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="269" height="10" uuid="018a7afd-b7ea-4f0a-8988-1c89c31b8610"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.5. Қарыздарды қолдануға арналған сыйақы белгіленген болып саналады және төмендегілерді құрайды:\n▪	Номиналды түрдегі Қарыз сомасынан жылдық " + $F{CR_INTEREST_RATE} + " % " + $F{RATE_N_KAZ} + " пайыз.\n▪	Қазақстан Республикасы Ұлттық Банкі Басқармасының 26 наурыз 2012 жылғы № 137  «Қарыз бен салымдар бойынша сенімді, жылдық, тиімді, салыстырмалы есептемедегі (нақты құны) сыйақы мөлшерлемесін есептеу Ережесін бекіту туралы» Қаулысына сәйкес (Нормативтік құқықтық актілерді мемлекеттік тіркеу тізілімінде № 7663) есептелген сенімді жылдық тиімді салыстырмалы есептеме пайызы " + ($F{LOAN_PERCENT_EF}.intValue() > 0 ? $F{LOAN_PERCENT_EF} : " ") +  " % " + $F{RATE_EF_KAZ} + ".\n1.6. Қарыз бойынша Берешекті өтеу қолма-қол ақшалай немесе қолма-қол ақшасыз тәртіппен жүргізіледі."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="203" width="268" height="10" uuid="46c1f5f5-7839-4bbd-aa82-5d99ab4be7c1"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="f3034588-98c3-4634-b5e3-786cc4b6bfa0"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.7. Қарыз бойынша Берешекті өтеу және Сыйақы осы Шарттың ажырамас бір бөлігі болып табылатын өтеу Кестесімен (№1 Қосымша) сәйкес " + $F{LOAN_TYPE_KZ} + " тәсілмен жүзеге асады."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="215" width="268" height="10" uuid="70630b5f-34d4-4062-a802-d5ef6f0ef240"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="e736eea0-90b1-4922-bc4d-de1bdb4ed05e"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["1.8. Өтеу кестесінде бекітілген (Шартқа № 1 Қосымша) Қарыз бойынша Берешекті өтеуді Банк мынадай кезектілікке сәйкес жүзеге асырады: 1) айыппұл төлемінің сомасы; 2) Банк комиссиясы; 3) мерзімі асып кеткен Сыйақы; 4) Негізгі қарыз (Заем) бойынша мерзімі асып кеткен Қарыз; 5) Сыйақы сомасы; 6) Қарыз сомасы.\n1.9. Қарыз бойынша Берешекті өз уақытында өтемегені үшін Қарыз алушы Банкке төлем мерзімін бұзған әрбір күн үшін төлем мерзімін бұзған күннің келесі күнінен бастап бұзылған Міндеттеме сомасының 0,2% (Нөл бүтін оннан екі) көлемінде тұрақсыздық айыбын төлейді, алайда Шарттың әрекет етуінің әрбір жылдағы Қарыз сомасынан 10% (Он) пайыздан көп емес. Қарыз Шарттың ажырамас бөлігі болып табылатын Өтеу кестесіне сәйкес Несие бойынша Қарыз алушы өтеуге міндетті Банктің операциялық күнін (Алматы уақыты бойынша 23 сағат 00 минут) жабу кезінде Шартта көрсетілген, Қарыз алушының ағымдағы шотында ақша болмаған кезде мерзімі өткен болып саналады. Қарыз валютасынан тыс Шет ел валютасымен акцептсіз ақша алған жағдайда, Банктің белгіленген бағамы бойынша Қарыз валютасымен айырбасталған ақшамен жүзеге асады.\n1.10. Қарызды пайдаланғаны және бергені үшін Қарыз алушы Банкке мынадай комиссияларды төлейді:"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="227" width="268" height="10" uuid="81ebe9b4-785f-4b5d-83c5-c04ec08e05dc"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="0dd75920-1bf0-4236-ac93-0844ea6879a6"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["- Қарызды бергені үшін – Қарызды беру кезіндегі біржолғы Қарыз сомасынан " + $F{LOAN_KOMISS} + " " + $F{LOAN_KOMISS_KAZ} + " " +$F{CURRENCY} + ";\n- Қолданыстағы несиелеу шартын өзгерткені үшін – Банктің Несие Комитетінің (мин.0 теңге, макс.200 000 теңге) теңге, осындай өзгерістерді жүзеге асыру кезінде алынады.\nКомиссиялар, осы Шартты жасау күні белгісіз болған алымдар фактісі нақты төлемнен кейін Қарыз алушының талабы бойынша жылдық тиімді сыйақы мөлшерлемесін қайта есептеу кезінде ескеріледі.\n1.11. Шарт бойынша Берешекті өтеу Қарыз алушының ағымдық шотына Банк кассасы арқылы қолма-қол ақшаны енгізу арқылы немесе Қазақстан Республикасының заңнамасына қайшы келмейтін басқа да әдістер арқылы жүзеге асырылады. Қарыз бойынша Сыйақы Қарыз алушыға Қарызды нақты пайдаланған күн үшін ай сайын төленеді. Сыйақының соңғы төлемі Негізгі қарыз сомасымен бірге Қарыз бойынша Берешекті өтеу күні жүргізіледі. Қарыз бойынша негізгі қарыз – ай сайын Берешекті толық өтегенге дейін Қарыз алушының кез-келген банктік шотынан тоқсан сайын төленеді.\n1.11.1. Сыйақыны төлеу күні мен Қарыз сомасына Қарыз алушының шотына Сыйақы сомасы есептелген күн түсініледі. Сыйақыны есептеу Қарызды нақты пайдаланған күн үшін жүргізіледі, бұл жағдайда бір жыл 360 күнтізбелік күнге тең болып қабылданады.\n1.11.2. Сыйақыны есептеу Қарызды берген күннің келесі күнінен бастап Қарыз бойынша Негізгі қарыз сомасына жүргізіледі және Қарызды толық өтеген күні аяқталады.\n1.12. Банк алдындағы Шарт бойынша Қарыз алушының міндеттемесін орындауды қамтамасыз ету мыналар болып табылады:\n•	Осы Шартта көзделген тұрақсыздық айыбы.\n1.13. Банк Қарыз бойынша Сыйақы сомасын, Қарыз сомасының толық көлемін, сондай-ақ Қазақстан Республикасының заңнамасы мен осы Шарттың талаптарына сәйкес тиесілі басқа төлемдерді мынадай жағдайларда өндіріп алуды  мерзімінен бұрын ұсынуға құқығы бар:\n▪	Қарыз алушыда Қарыз бойынша кезекті төлемдерді жүргізу үшін ақша және олардың түсу артықшылығы болмаған жағдайда;\n▪	егер Қарыз алушының мүлігіне не шоттарында сақталған оның ақшасына немесе басқа төлемдердің түріне тыйым салынғанда (не осындай салдардан қауіптер пайда болғанда);\n▪	егер Қарыз алушы қандай-да бір әдіспен кепіл туралы Шарт пен осы Шарттың талаптарына сәйкес Қарыз бойынша Қамтамасыз етуді ұсынудан бас тартқанда;\n▪	егер осы Шартта Қарыз алушы жасаған мәлімдемелер мен кепілдіктердің кемінде біреуі жарамсыз немесе осы Шарттың әрекет ету кезеңінде жарамсыз болса;\n▪	Қамтамасыз ету туралы қате мәліметтерді тапсырғанда, сондай-ақ кепіл туралы Шарттың талаптары бұзылған жағдайда;\n▪	Қарыз алушы Шарт бойынша және/немесе Кепіл туралы шарт, Кепілдік шарты бойынша Қарыз алушы және/немесе  үшінші тұлғалар тапсырған Қамтамасыз етудің кез-келген   міндеттемелерін бұзғанда;\n▪	Қамтамасыз етуді жоғалтқан жағдайда;\n▪	Қарызды мақсатты пайдаланбағанда;\n▪	осы Шарт бойынша өздерінің Міндеттемелерін орындау мүмкіндігіне, Қарыз алушының төлем қабілетіне кері ықпал етуі мүмкін Банктің негізді пікірі бойынша өзге де жағдайларда.\n1.13.1. Осы Шарттың 1.13 т. тізбеленген жағдайларда, Банк Қазақстан Республикасының заңнамасында қарастырылған оның құқықтары мен мүдделерін қорғауға қажетті барлық шараларды қолдануға құқылы, бұл жағдайда осыған байланысты Банктің барлық шығындары Қарыз алушының шотына жатады.\n1.14. Осы Шарт оған Тараптар қол қойған сәттен бастап өз күшіне енеді және Қарыз алушы осы Шарт бойынша Банк алдында барлық Міндеттемелерін толық тиісті жолмен орындағаннан кейін өзінің әрекет етуін тоқтатады.\n"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="249" width="268" height="30" uuid="b7627d08-d5af-4dc4-bb61-cea6f8059e8a"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="30" uuid="50261c42-05a5-4c36-a385-5d122999b8f5"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[2. ТАРАПТАРДЫҢ МІНДЕТТЕМЕЛЕРДІ БҰЗҒАНЫ ҮШІН ЖАУАПКЕРШІЛІКТЕРІ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="284" width="268" height="10" uuid="4eb6e223-9553-4cf8-b8f7-33df599686ee"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="8f843321-d824-4994-8201-be25ac32ebf7"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["2.1. Осы Шарттың талаптарын бұзған жағдайда, Тараптар осы Шарттың жағдайы мен Қазақстан Республикасының заңнамасына сәйкес жауап береді.\n2.2. Қарыз мақсатсыз қолданылған жағдайда, Банк Қарыз алушыдан Қарызды мақсатсыз қолдану сомасынан 5% (Бес) пайыз мөлшерде айыппұл төлеуін талап етуге және Қарыз сомасын мезгілінен бұрын алуға құқылы.\n2.3. Қарыз алушы Шарт бойынша Міндеттемелерді орындамаған немесе тиісті орындамаған жағдайда, Банк Қарыз алушыдан тұрақсыздық айыбын төлеуді, қосымша Қамтамасыз етуді тапсыруды, Қарызды мерзімінен бұрын қайтаруды және Сыйақы төлеуді, Берешекті сот және соттан тыс тәртіппен өндіруді талап етуге, Қамтамасыз етуді сот және мәжбүрлі соттан тыс тәртіппен (акцептсіз тәртіппен) өндіріп алуға, Шарт бойынша Қарыз алушының Берешегін өтеу кезектілігін өзгертуге, Тараптардың келісімі бойынша тұрақсыздық айыбының көлемін өзгертуге, бір жақты тәртіппен Шартты бұзуға, акцептсіз тәртіппен Қарыз алушының банктік шотынан ақша өндіруге, сондай-ақ Қазақстан Республикасының заңнамасында көзделген өзге де шараларды қолдануға құқылы.\n2.4. Қарыз берген күннен бастап 12 (Он екi) айдың ішінде Қарызды толық немесе ішінара мерзімінен бұрын өтеуді жүзеге асырған жағдайда, Қарыз алушы өтелетін негізгі қарыз сомасынан 10 (он) пайыз мөлшерде айыппұл төлейді, өтеуді жүзеге асыру кезінде алынады, Шарттың 3.1.1. т. қарастырылған жағдайды қоспағанда.\n2.5. Қарыз алушы Шарттың 8.1.9 " + ($F{IS_REFINANCING}.intValue() > 0 && $F{SPEC_COND}.intValue() > 0 && $F{REF_BANK} != null  ? "және/немесе 8.1.10" : "") +  ($F{NAME_DOC_FOR_BANK} != null && $F{DAY_FOR_DOC_FROM_OTHER_BANK}.intValue() > 0 ? " және/немесе 8.1.11" : "") +  " тармақтарын орындамағанда немесе тиісті орындамаған жағдайда, міндеттемелерді орындаудың әрбір мерзімі өткен күн үшін Қарыз сомасынан 0,05 (нөл бүтін жүзден бес) пайыз көлемінде тұрақсыздық айыбын төлейді."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="300" width="268" height="20" uuid="ab16a758-32dd-4175-a691-8be601380bd1"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="0463caea-eca0-47c0-8c7b-5b0cc9c73323"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[3. ҚАРЫЗ АЛУШЫНЫҢ ҚҰҚЫҒЫ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="323" width="268" height="10" uuid="3a49a0f8-c5c1-447f-8b37-68a442eb5c50"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="0334a6db-75dd-4790-9e1c-82184de3626c"/>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["3.1. Қарыз алушының құқығы:\n3.1.1. Кәсіпкерлік әрекеттер жүргізумен байланыссыз тауарларды, жұмыс және қызметтерді (тұтыну мақсатында) алудағы Қарызды алған жағдайда, Шартты жасаған күннен бастап 14 (Он төрт) күнтізбелік күннің ішінде Қарызды қайтаруға арналған айыппұл жазалау шараларын/тұрақсыздық айыбын төлемеу арқылы Қарызды ұсынған күннен бастап Сыйақы төлемімен есептелген Банкке Қарызды қайтару;\n3.1.2. егер Негізгі Қарыздың немесе Сыйақыны өтеу күні демалыс не мейрам күндеріне түскен жағдайда, Сыйақы төлемін немесе Негізгі қарызды келесі жұмыс күніне тұрақсыздық айыбының және басқа айыппұл жазалау шаралары түрлерінінің төлемінсіз жүзеге асыру;\n3.1.3. Шарт бойынша Берешекті өтеу шотына кезекті түскен ақшаларды бөлу (Негізгі қарызға, Сыйақы, комиссия, тұрақсыздық айыбы, айыппұлдар және басқа тиісті сома түрлеріне) туралы ақпаратты жазбаша үлгіде айына бір реттен кем емес мерзімде тегін үш жұмыс күннен кешіктірмей өз өтініші бойынша алу;\n3.1.4. Қарыз Шарты бойынша өз бетінше Банкке мезгілінен бұрын толық немесе ішінара қайтару туралы өтінішті ұсынған – Негізгі қарызда, Сыйақы комиссиясында, тұрақсыздық айыбында, айыппұлдарда және мезгілінен бұрын төленген төлемде белгіленген басқа сомаға тиесілі  төлеуде ажыратуымен сома қайтаруға тиесілі мөлшер туралы мәліметтерді жазбаша қалыпта  үш жұмыс күннен кешіктірмей қайтарусыз алу;\n3.1.5. Қарыз сомасын толық мерзімінен бұрын өтеуді және Қарызы пайдаланғаны үшін есептелген Сыйақыны немесе ішінара мерзімінен бұрын өтеуді, қалған кем дегенде 3 (Үш) жұмыс күні бұрын Банкке жазбаша хабарлап және Тараптар тиісті құжаттарға қол қойған жағдайда және /немесе несие өнімі бойынша берешекті мерзімінен ерте өтеуге Банкке өтініш берген жағдайда Қарызы алған күннен бастап 1 (Бір) жылға дейін Қарыз сомасын ішінара немесе Қарыз сомасын толық мерзімінен бұрын өтеу жағдайларын есептемегенде айыппұл санкцияларын төлемей Қарыз сомасын толық және ішінара мерзімінен бұрын өтеуге;\n3.1.7. осы Шарттың талаптарына сәйкес алынған Қарызды қолдану;\n3.1.8. осы Шарттан туындайтын келіспеушіліктерді реттеу үшін Қазақстан Республикасының 1995 жылғы 31 тамыздағы «Қазақстан Республикасындағы банктер мен банкілік қызметтер туралы» Заңға сәйкес банкілік омбудсменге жазбаша өтініш жасау."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="342" width="268" height="20" uuid="41b4df4b-db80-4197-a25d-72cdde8380f6"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="c9c6fdfb-8b71-4292-b5f2-5005785467de"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[4. БАНКТІҢ ҚҰҚЫҒЫ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="371" width="268" height="10" uuid="32b6a4a5-b050-45cd-b513-9f77471298a7"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="803123e5-d5ae-4b9a-8fc8-558a60e70eb2">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["4.1. Банктің құқығы:\n4.1.1. жақсаруға арналған Қарыз алушының жағына  Шарттың талаптарын бір жақты тәртіпте өзгерту;\n4.1.2. Сыйақы мен Қарыз сомасын  мезгілінен бұрын қайтаруды сол бойынша Қарыз алушы кезекті Қарыздың бөлігі үшін белгіленген мерзімді бұзғанда және (немесе) қырық күнтізбелік күннің мерзімінен аса Сыйақыны төлеуде талап ету;\n4.1.3. кепіл туралы Шартқа сәйкес осы Шарт бойынша Қарыз алушының Берешегін өтеуге арналған Кепіл мүлкін жүзеге асырудан алынған ақша жеткіліксіз болғанда Банк Қазақстан Республикасының қолданысындағы заңнамасына сәйкес Қарыз алушыға басқа мүліктерді төлеуін хабарлайды;\n4.1.4. Қарыз алушы есептелген Сыйақының сомасын төлеу бойынша орындалмаған немесе орындауға жатпайтын өз Міндеттемелері болған жағдайда және мезгілінен бұрын Сыйақы пайда  болған жағдайда, Сыйақыны есептеуді тоқтатады;\n4.1.5. есептелген Сыйақының тоқтатылу күнінен бастап кез-келген уақытта есептелген Сыйақыны жаңарту;\n4.1.6. Негізгі қарыз сияқты Сыйақыны өтеу бойынша мезгілінен бұрын төлем үшін есептелген айыппұл санкцияларын жаңарту және бөгелту;\n4.1.7. Шарт бойынша басқа төлемдерді және комиссияларды, тұрақсыздық айыбын, Қарыздың, Сыйақының сомасын, сондай-ақ Шарттың көшірмесінің дұрыстығын нотариалды куәландыру бойынша Қарыз алушының басқа банктерде және/немесе мекемелерде ашылған шотымен Банктің төлем құжаттарына ұсынылған шығындар, Қазақстан Республикасының аймағында және солардың шегіндегі акцептсіз тәртіпте орындалған талап ету - тапсырыс беру төлемдері немесе басқа құжаттар жүргізілген банктік операциялардың бөлек түрлерін акцептсіз тәртіпте көшіру;\n4.1.8. Қарыз алушы қаза болған жағдайда, осы шарт бойынша Қазақстан Республикасының заңнамасына сәйкес оның мұрагеріне Қарыз алушының Міндеттемелерінен шыққан өз талаптарын ұсыну;\n4.1.9. Қазақстан Республикасының аймағындағы банктік операциялардың жеке түрлерін және оның шегіндегі Қарыз алушының банк шотындағы нөмірлері мен қолма-қол ақшалары туралы анықтамаларын банктерде және/немесе мекемелерде сұрау;\n4.1.10. Берешек сомаларын (Қарыз валюталарына тәуелсіз) акцептсіз және даусыз тәртіпте Қарыз алушының Қазақстан Республикасының аймағындағы кез-келген басқа банктерден (банктік операциялардың  жеке түрлерін жүргізетін мекемелерде және басқа несие мекемелерінде) ашқан банктік шотына және соның шегінде талап ету-тапсырыс беру (қажетті құжаттардың қосымшасымен) төлемінің акцептсіз тәртіпте орындалуын ұсыну жолымен алу. Қарыз алушының банктік шотында жеткілікті ақша болғанда Банктің  талап ету-тапсырыс беру төлемі онда белгіленген ақша сомасын қолдану қажет, ал Банктің  талап ету-тапсырыс беру төлемінде белгіленген ақша сомасын алу үшін – жеткіліксіз ақша болған жағдайда - Қарыз алушының банктік шотының Карточкасында сақталады."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="386" width="268" height="20" uuid="4699d0c8-5cc2-4920-9e4c-1c8e6c28fe93"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="70c40eb7-023d-44f6-9d02-227aac041983"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[5. БАНКТІҢ МІНДЕТТЕМЕЛЕРІ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="412" width="268" height="10" uuid="83fd3ac1-01bb-4028-b0a3-5b16ab027233"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="c66eb36a-900d-436d-822f-d01897c6a0f7">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["5.1. Банк міндетті:\n5.1.1. Шартты жасаған күннен бастап он төрт күнтізбелік күннің ішінде тұрақсыздық айыппұлдың кідірісінсіз немесе Қарызды қайтару үшін басқа айыппұл санксияларының түрлеріндегі Қарызды ұсыну күнімен есептелген Сыйақының кідірісімен Қарыз сомасын қабылдау;\n5.1.2. Қарыз алушының арызы бойынша тегін жиі емес айына бір рет үш жұмыс күнінен кешіктірмей жазбаша түрде Шарт бойынша Берешекті өтеу шотына түсетін кезекті ақшаны бөлу (Негізгі қарызға, Сыйақыға, комиссияға, тұрақсыздық айыбына, айыппұлдарға және мезгілінен бұрын төленетін төлеммен белгіленген  басқа тиісті төлем сомаларында);\n5.1.3. Қарыз Шарты бойынша ұсынылған Карыз алушының арызы бойынша Банкке мезгілінен бұрын толық немесе ішінара қайтару туралы – тегін үш жұмыс күнінен кешіктірмей Негізгі қарызға, Сыйақыға, комиссияға, тұрақсыздық айыбына, айыппұлдарға және мезгілінен бұрын төленетін төлеммен белгіленген  басқа тиісті төлем сомаларында бөлінген ақша сомасын қайтаруға тиесілі өлшемде оған хабарлау;\n5.1.4. Қарыз алушыға 30 (отыз) жұмыс күні бойында Міндеттемелерді орындаудың мерзімі өткені туралы және Шарттың 10.1 тармағында көзделген әдіспен Шарт бойынша төлемдер енгізу қажеттігін хабарлау;\n5.1.5. «Жеке және заңды тұлғалардың өтініштерін қарау тәртібі туралы» 12 қаңтар 2007 жылғы Қазақстан Республикасының Заңы бекіткен мерзімде Қарыз алушының жазбаша өтінішіне  жазбаша жауап дайындау және қарау.\n5.1.6. Шарт бойынша үшінші тұлғаға талап ету құқығы берілгенде  (егер қайта жол беру құқы Шартта қарастырылса)  үш жұмыс күнінің ішінде берілген талап құқығының толық көлемін, берешектің ағымдағы және мерзімі өткен қалдығын, Негізі қарызға бөле отырып, сыйақыны, комиссияны, тұрақсыздық айыбын және төлеуге жататын басқа да сомалар түрін көрсетіп, сондай-ақ қарызды өтеу бойынша  Банкке немесе талап ету құқығы берілген тұлғаға  одан ары төлемді белгілеп  Қарыз алушыны бұл туралы жазбаша хабарлау."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="4" y="431" width="268" height="20" uuid="b48c391f-a8f8-475f-bcc6-aad27fc00350"/>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="0e35b1f7-e7b6-4ed8-928b-5c8ed170ce02"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[6. БАНКТЕРГЕ АРНАЛҒАН ШЕКТЕУЛЕР]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="460" width="268" height="10" uuid="08bfd23a-6364-40d0-b465-bc54e64580f5"/>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="a350c6cb-3f25-48bf-8a1c-3711e1c78959">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["6.1. Банктің құқығы:\n6.1.1. бір жақты тәртіппен Қарыз алушымен шарт жасаған күні белгіленген тарифтердің көлемі мен есептеу тәртібін, комиссияларды және Қарызға қызмет көрсету ету бойынша басқа да шығындарды ұлғайту жағына өзгерту;\n6.1.2. жасалған Шарттың шегінде бір жақты тәртіпте жаңа комиссиялардың түрлерін енгізу;\n6.1.3. Қарыз алушы Қарыз берушінің сақтандыру мекемесінде және (немесе) Қамтамасыз ету болып табылатын бағалаушының мүлік нарық құнын анықтау мақсатында өткізген бағаларына шектеу қояды, сондай-ақ  Қарыз алушының өз өмірі мен денсаулығын сақтау міндеттемелерін жүктейді;\n6.1.4. Қарызды алу күнінен бастап бір жылға дейін Негізгі қарызды мезгілінен бұрын толық немесе ішінара өтеуден шығарған жағдайда Қарызды мезгілінен бұрын өтеу үшін тұрақсыздық айыптарын немесе басқа айыппұл санкцияларын алу;\n6.1.5. егер Негізгі несиені немесе Сыйақыны өтеу күні демалыс не мейрам күндеріне түссе, тұрақсыздық айыптарын немесе басқа айыппұл санкцияларын алу және Сыйақы немесе Негізгі қарызды төлеу келесі жұмыс күнінде жүргізіледі."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="4" y="478" width="268" height="32" uuid="5e5aa913-b402-4fd5-b58f-3d4368a6398a">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="32" uuid="bd3705e2-75d2-4e8b-a202-79d6e3dfda79"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[7. ШАРТТЫҢ ТАЛАПТАРЫНА ӨЗГЕРІСТЕР ЕНГІЗУ ТӘРТІБІ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="515" width="268" height="10" uuid="5e8f229e-6e27-4bdb-ac69-78add500e9d0">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="e2a3c447-266e-41b5-b9be-6e751a33e5ed">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["7.1. Егер басқалар осы Шартта және Қазақстан Республикасының заңнамасының актілерінде белгіленбеген болса, осы Шарттың талаптары бір жақты тәртіпте Тараптар тарапынан өзгертіле алмайды. "]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="530" width="268" height="20" uuid="e91d70b6-0fd4-46c0-83e4-3f1db9f030f8">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<staticText>
+								<reportElement positionType="Float" x="0" y="0" width="268" height="20" uuid="8f122ca8-5714-4730-ac77-8c63ff1594b8"/>
+								<textElement textAlignment="Center">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<text><![CDATA[8. ҚАРЫЗ АЛУШЫНЫҢ МІНДЕТТЕМЕЛЕРІ]]></text>
+							</staticText>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="570" width="268" height="10" uuid="cf622103-c062-4668-8021-94e856f1ecc4">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="5e3aa441-3182-43ae-9ba8-1bc80ffae65c">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["       <b>         9. ТАРАПТАРДЫҢ ДАУЛАРЫ\n                 МЕН НАРАЗЫЛЫҚТАРЫ</b>\n9.1. Тараптардың осы Шарттың талаптарын орындау үрдісінде пайда болған наразылықтары,  сотқа дейінгі тәртіпте өзара тиімді шешімді өндіру мақсатында келіссөздер жүргізу арқылы қаралады.\n9.2. Келіссөздер арқылы Тараптар реттемеген барлық сұрақтар бойынша даулар Қазақстан Республикасының заңнамасында бекітілген тәртіпке сәйкес, Банк немесе оның филиалы орналасқан жердегі сотта шешіледі."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="555" width="268" height="10" uuid="2723b5a8-b733-4a7d-9fa9-4c2781037c0c">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="5306780e-65e7-4658-8123-fce41a4b63eb">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["8.1. Қарыз алушының міндеті:\n8.1.1. Банк ұсынған мақсатты атауы бойынша Қарызды пайдалану;\n8.1.2. алынған Қарызды уақытында немесе толық көлемде қайтару және оны қолданғаны үшін Сыйақы төлеу. Осы Шартта белгіленген мерзімде Қарыз сомасы және Қарызды қолдануға арналған Сыйақы қайтарылады;\n8.1.3. уақытында Қарызды өтеуге бейім және солар бойынша Сыйақылардың барлық міндеттемелері туралы уақытында Банкке хабарлау;\n8.1.4. Банк қызметкерлерін Қамтамасыз етуді  тексеруге кіргізу, олардың талап етуі бойынша Қарыздың мақсатты пайдаланылуы үшін Қарыз бойынша Берешекті толық өтегенге дейін оның қамтамасыз етілуін тексеру үшін қажетті құжаттарды тапсыру. Тексерулер көлемі мен олардың мерзімдерін Банк белгілейді және Қарыз алушымен келіседі;\n8.1.5. осы Шарттың 1.10. тармағында белгіленген тізіммен Банктің комиссиясын төлейді;\n8.1.6. Қажет болған жағдайда, Банктің бірінші талабы бойынша үшінші тараптың кепілі және кепілдік ұсыну туралы кепіл шартын жасау жолымен,  осы Шарт бойынша өз Міндеттемелерінің орындалуына қосымша қамтамасыз етуді ұсыну.\n8.1.8. Шынайы жылдық тиімді салыстырмалы есептеудегі сыйақы мөлшерлемесін есептеу үшін Қамтамасыз етуді бағалаған және сақтандырған мерзімнен бастап 3 (үш) жұмыс күні ішінде Банкке Қамтамасыз етуді бағалау мен сақтандырумен байланысты өзінің барлық шығындары туралы ақпаратты жазбаша беру.\n8.1.9. Екінші деңгейлі Банктен және/немесе банкілік операциялардың жекелеген түрлерін жүзеге асыратын Ұйымдардан қарыз/несие алған жағдайда, 5 (бес) күнтізбелік күннің бойында бұл туралы Банкке жазбаша хабарлау. " + ($F{IS_REFINANCING}.intValue() > 0 && $F{SPEC_COND}.intValue()  > 0  && $F{REF_BANK} != null ? "\n8.1.10. Қарыз бергеннен кейін " + $F{SPEC_COND} + " жұмыс күнінен кешіктірмей Банкке берешекті мерзімінен ерте толық өтегенін растаушы құжаттарды ұсыну " + ($F{REF_BANK} != null ? $F{REF_BANK} + "." : "") : "") + ($F{NAME_DOC_FOR_BANK} != null && $F{DAY_FOR_DOC_FROM_OTHER_BANK}.intValue() > 0 ? "\n8.1.11. Қарыз бергеннен кейін " + ($F{DAY_FOR_DOC_FROM_OTHER_BANK} != null ? $F{DAY_FOR_DOC_FROM_OTHER_BANK} : "") + " жұмыс күнінен кешіктірмей мынадай құжаттарды тапсыру: - " + ($F{NAME_DOC_FOR_BANK} != null ? $F{NAME_DOC_FOR_BANK} + ".": "") : "")  + "\n8.1.12. Қарыз алушы Банктің бастапқы талабы бойынша осы Шартта көзделген жағдай мен көлемде Банкке тұрақсыздық айыбын, айыппұл, комиссия төлеуге міндеттенеді."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="585" width="268" height="10" uuid="b54c7cf0-e2ba-48b2-b6fe-ca3dd63cb9d0">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="37053c46-980e-47a1-a956-5996cff3bd2f">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["            <b>  10. ҚОСЫМША ТАЛАПТАР</b>\n10.1. Осы Шарттың талаптары шегінде барлық хабарламалар, талаптар және басқа құжаттар Шартта белгіленген Тараптардың мекенжайы бойынша – пошта арқылы беру не Тараптардың талаптарындағы берілген адресатқа алынған және жіберуге тиісті үлгіде есептеледі. \n10.2. Шартта берілген Қарыз алушының мекенжайы өзгеруі туралы хабарлама болмаған жағдайда, Осы Шарттың талаптарының шегіндегі барлық хабарламалар, талаптар және басқа құжаттар, Банкке әйгілі Қарыз алушының соңғы мекен-жайы бойынша жіберіледі, және тіпті Қарыз алушы бұл мекен-жай бойынша енді тұрмаса да жеткізілді деп есептеледі.\n10.3. Қарыз алушы Банкке Шарт валютасымен Банк комиссиясын акцептсіз есептен шығаруға толық құқықты беру арқылы Банктің қызметтерін  төлеуге міндетті. Комиссияны өз уақытында төлемеген жағдайда, Банк акцептсіз тәртіппен Қарыз алушының кез-келген шотынан Шарттағы валютаға қарағанда, өзге валютамен комиссия сомасын есептен шығарады, бұл жағдайда алынған ақшаны комиссиялық сыйақы валютасына айырбастау Банк белгілеген бағам бойынша жүргізіледі;\n10.4. Қарыз алушы осы Шарт бойынша өз құқығын Банктің жазбаша келісімінсіз үшінші жаққа беруге құқықы жоқ.\n10.5. Осы Шартқа қол қоя отырып, Қарыз алушы Банкке осы Шарт бойынша Қарыз алушы өз міндеттемелерін орындамағанда және/немесе тиісті жолмен орындамаған жағдайда, осы Шарт шегінде берілген Қарызға байланысты кез-келген ақпаратты және құжаттарды, оның ішінде банктік құпияны құрайтындарды үшінші тұлғаларға, оның ішінде Қарыз алушының жұмыс берушісіне беруге, сондай-ақ мұндай ақпаратты үшінші тұлғаларға беру, оның ішінде екінші деңгейлі банктерге, сақтандыру, аудиторлық, бағалау іс-әрекеттерін орындаушы мекемелерге, сондай-ақ Банк тартқан сыртқы сарапшыларға Қарызға қызмет көрсету үшін қажетті немесе басқа мақсаттарға беруге келісім береді.  Осы тармақта көрсетілген Қарыз алушының келісімі оның Банкте жеке болған кезінде берілген.\n10.6. Осы Шартқа мемлекеттік және орыс тілінде қол қойылды және Тараптардың әрқайсысына берілді. Мәтінде қарама-қайшылықтыр пайда болған жағдайда, орыс тілінің артықшылығы басым.\n10.7. Осы Шарттағы кепіл туралы Шарт, кепілдік Шарты және барлық Қосымшалар мен толықтырулар осы Шарттың ажырамас бір бөлігі болып табылады.\n10.8. Осы Шарт Қарыз алушының Банкте жеке соңғы болған кезінде қол қойылды.\n10.9. Осы Қарыз алушы осы Шарт бойынша  Банк пен Қарыз алушының өз Міндеттемелерін орындауымен байланысты жасалған мәліметтер мен ақпараттарда, сондай-ақ несие тарихының қалыптасуы мен несие қоры туралы заңнамасымен сәйкес ұсынуға керек болуы мүмкін басқа құжаттарда, Банкке несие бюросының соңғы дерекқорындағы Қарыз алушы туралы мәліметті алуға және ұсынуға өз келісімін ұсынады.\n10.10. Шарттың валютасымен тұрақсыздық айыбын Банк есептейді. Қарыз валютасына қарағанда, акцептсіз тәртіпте тұрақсыздық айыбын шет ел валютасымен алу, алынған ақшаны Қарыз валютасымен айырбастау, Банк белгілеген бағам бойынша  жүргізіледі.\n10.11. Қарыз алушының басқа банктердегі және/немесе мекемелердегі шоттарынан ақшаны көшіріп алған жағдайда, Қазақстан Республикасының аймағында банктік операциялардың жеке түрлері жүргізіледі  және оның шегінде Қарыз алушы Банкке акцептсіз және даусыз тәртіпте көшірумен байланысты толық көлемде барлық шығындарын енгізеді.\n10.12. Осы Шартта белгіленген талаптармен бірге оны орындауында Тараптар Қазақстан Республикасының заңнамасына сүйенеді.\n10.13. Қарыз алушының, Кепіл берушінің, Кепілдік берушінің кепіл туралы Шарты бойынша орындалмаған және/немесе орындауға жатпайтын Міндеттемелерін Шарт бойынша орындалмаған және/немесе орындауға жатпайтын Міндеттемелері сияқты қарастырады."  + ($F{IS_REFINANCING}.intValue() > 0 && $F{REF_BANK} != null ? "\n10.14. Қарыз беруді Қарыз алушының өтініші бойынша одан ары қолма-қол ақшасыз аудару арқылы жүзеге асыру " + $F{REF_BANK} + ".": "")]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="600" width="268" height="10" uuid="c1a390e3-8e24-4287-a5c5-f452149b5067">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="10f7dbdd-85bd-413c-8b07-36da51322a64">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[" <b>    11. МӘЛІМДЕМЕЛЕР МЕН КЕПІЛДІКТЕР</b>\n\n<b>Қарыз алушы төмендегілерді мәлімдейді және кепілдік береді:</b>\n▪	Оның өз атынан осы Шартты жасауға құқығы бар;\n▪	Осы Шарттың талаптарына сәйкес орындауға жататын Осы Шарт өзімен бірге қолданылатын және Қарыз алушының Міндеттемелерінің заңды күші бар екендігін көрсетеді;\n▪	Осы Шартқа қол қойған сәтке ол төленбеген салық бойынша міндетті болмайды;\n▪	Осы Шартқа қол қойған сәтке ол Қарыз, Несие, құнды қағаздар, басқа шартты міндеттемелер бойынша үшінші тараптың алдындағы  міндеттемелер бойынша  мезгілінен бұрын Берешекті алмайды;\n▪	Қарыз алушы осы Шарттың барлық қолданылу мерзімінің бойында Банкке Сыйақы және/немесе Негізгі қарыз және/немесе комиссиялар және/немесе тұрақсыздық айыбы және/немесе Өтеу кестесінде (осы Шарттың №1 Қосымшасы) ескертілген мерзімде Шарт валютасымен Қарыз алушының барлық банктік шоттарын тікелей дебеттеу арқылы Шартта көзделген өзге де төлемдер сомаларын акцептсіз есептен шығаруға толық құқық береді. Қарыз алушының банктік шотын тікелей дебеттеуді жүзеге асыруға негіздеме ретіндегі құжат осы Шарт болып табылады.\n▪	Қарыз алушы Өтеу кестесіне (осы Шарттың №1 Қосымшасы) сәйкес есептен шығару жүргізілетін шоттағы Шарт валютасындағы ақшаны қажетті сомамен қамтамасыз етуге міндетті.\n▪	Банк Тарифтерімен, Комиссиялармен және айыппұл санкцияларымен таныстым және келісемін.\n▪    адастыру, алдау, зорлық көрсету, қорқыту, қиянаттық жолмен келісу немесе ауыр жағдайлардың пайда болуы ықпалында емес, қол қойып отырған Шарттың түп-төркінін түсінеді және оның талаптары Қарыз алушы үшін кіріптар емес.\n▪	осы Шартқа қол қою арқылы Қарыз алушы Банкке ақшаны акцептсіз алуға және кез-келген банктерде және/немесе Қазақстан Республикасының аумағында және одан тыс жерлерде банктік операциялардың жеке түрлерін жүзеге асырушы мекемелерде ашылған Қарыз алушының банктік шоттарынан Шарт бойынша міндеттемелерді орындаумен байланысты  сомаларды, оның ішінде Берешек сомасын, тұрақсыздық айыптарын, комиссияларды және Шарт бойынша басқа төлемдерді тура дебеттеуге даусыз келісімін береді.\n▪	Қарыз алушы осы Шартқа қол қоя отырып,  Банктің өнімдері мен қызметтеріне қатысты, Міндеттемелерді уақытылы орындамағаны  және Шарт бойынша жоспарлы төлемдерді енгізу қажеттілігі, сондай-ақ Банктен басқа ақпараттар туралы  sms хабарламалар, телефон қоңыраулар,  сондай-ақ электрондық пошта арқылы хат алуға келісімін береді."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="615" width="268" height="10" uuid="a79fdb5e-863d-4cba-9043-be8fabccb2dd">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="268" height="10" uuid="ad92e0c8-638c-4144-970b-c70a34055da8">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b>  12. АНЫҚТАМАЛАР МЕН ТҮСІНІКТЕР</b>\n\nЕгер Шартта басқалары тікелей айтылмаған терминдер мен анықтамалардың Шартта және олардың Қосымшаларында қолданылатын бастапқы әріптерінің мағыналары төмендегідей түсіндіріледі:\n<b>Қарыз/банкілік қарыз</b> – Банк Қарыз алушыға төлемділік, жеделділік, қайтарымдылық, қамтамасыз етушілік талаптармен беретін ақша сомасы.\n<b>Сыйақы</b> – Қарыз алушы Банкке Шартта белгіленген мөлшерлеме көлемі мен есеп айырысу тәртібінен шыға отырып, Қарызды қолданғаны үшін төлеуге міндетті ақша сомасы.\n<b>Шарттың мерзімі</b> – Банкке барлық Берешек сомасын кешіктірмей өтеу (төлеу) керек деп есептелетін Шартта белгіленген мерзім.\n<b>Берешек</b> – Шарт бойынша Қарыз алушы алған және Қарыз алушы өтемеген (қайтармаған) және Қарыз алушы төлемеген (өтемеген) Қарыздың сомасы, сондай-ақ сол немесе басқа нақты мерзімге Шарттың талаптары бойынша Банкке Қарыз алушының төлеміне тиісті басқа сомалар (шартта белгіленген айыппұлдар, тұрақсыздық айыбы, комиссиялар, сыйақылар және т.б).\n<b>Қамтамасыз ету</b> – барлығы бірге және әрқайсысы жеке дара – Шарт бойынша Қарыз алушының орындауға жататын Міндеттемелерін қамтамасыз ету тәсілдері (оған қоса, Шарттың 1.12 тармағында белгіленген бірақ шектеусіз).\n<b>Жұмыс күні</b> – Банктің операциялық күні.\n<b>Міндеттеме</b> – Шарт бойынша Қарыз алушы өзіне алған міндеттемелер, оған қоса Қарызды қайтару, Сыйақыны төлеу бойынша, Берешекті өтеу бойынша міндеттемелер және Шарт бойынша басқа Қарыз алушының Банктің алдындағы міндеттемелері,  сондай-ақ болашақта пайда болатын немесе бола ала алатын міндеттемелер.\n<b>Негізгі қарыз </b>– Шарттың 1.2. тармағында белгіленген осы Шарт бойынша Қарыз алушы алған және Банкке ұсынған ақша сомасы.\n<b>Операциялық күн</b> – Банк ақша аударуды жүзеге асырудың және оның пайдасына байланысты хабарламаларды оларға беруді және клиенттерден белгіленген мұндай тоқтату туралы не пікір туралы  бұйрықты және ақшаны аудару туралы нұсқауды қабылдауды жүзеге асыру аралығындағы мерзім;\nШарттың тармағында немесе қосымшасындағы сілтемелер, егер Шарттың мәтінінде қаралмаған басқалар болса, Шарттың тармағындағы немесе қосымшасындағы сілтемелер болып табылады."]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="626" width="268" height="41" uuid="c755810f-65c4-4450-90db-075c23238cb1">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="27" width="268" height="10" uuid="9d12be2d-c58c-40d2-9199-b782c945f70a">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="html">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA["<b>Банк:	 АҚ ЕБ «Альфа-Банк»<br>БСН 941240000341</b> <br>Деректемелері:	Қазақстан Республикасы, Алматы қ., Масанчи көш. 57а Кор./шот  SWIFT  - ALFAKZKA, 786418848 with JP Morgan Chase Bank N.A., New York, USA SWIFT – CHASUS33, (АҚШ долларымен) кор./шот KZ71125KZT1001300213 ҚР ҰБ  БСК NBRKKZKX (теңгемен)\nт. +7(727) 244 75 75. <br> <br><b>Қарыз алушы: " + $F{ZAM_FIO} + "<br>ЖСН</b> " + $F{IIN} + "<br><b>Жеке басын куәландыратын құжат </b>– " + $F{CARD_TYPE_KAZ} + $F{CARD_NUMBER} + " " +  $F{CARD_BY_KAZ}  + " берілген " + $F{CARDDATE1} + "-" + $F{CARD_END_DATE} + "<br><b>Тіркеу мекен жайы: </b>" + $F{ADR_PROPIS} + "<br><b>Тұрғылықты мекен жайы:</b> " + $F{ADR_FACT} + "<br><b>Тел: </b>" + $F{PHONE} + "<br><b>Ағымдағы шот:</b> " + $F{ACC} + " (KZT) АҚ ЕБ «Альфа-Банк».<br>"]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="0" y="0" width="265" height="20" uuid="fb2dd39c-37d0-40cc-a9d9-6f227a3474eb"/>
+								<textElement textAlignment="Center" markup="styled">
+									<font fontName="Times New Roman" size="12" isBold="true" isItalic="false"/>
+								</textElement>
+								<textFieldExpression><![CDATA["13. ТАРАПТАРДЫҢ МЕКЕНЖАЙЛАРЫ, ДЕРЕКТЕМЕЛЕРІ ЖӘНЕ ҚОЛДАРЫ"]]></textFieldExpression>
+							</textField>
+						</frame>
+						<frame>
+							<reportElement positionType="Float" x="1" y="669" width="268" height="10" uuid="88ed9030-5fe0-4d17-8711-1f72c246551b">
+								<property name="local_mesure_unity" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.y" value="px"/>
+							</reportElement>
+							<textField isStretchWithOverflow="true">
+								<reportElement positionType="Float" x="0" y="0" width="265" height="10" uuid="84d928e7-4b68-4d3d-bab9-57410478936f">
+									<property name="local_mesure_unitx" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.x" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Justified" markup="styled">
+									<font fontName="Times New Roman" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[($F{SOZ_COUNT}.intValue() > 0  ? $F{FIOB_2_KAZ} + "\n": "\n")]]></textFieldExpression>
+							</textField>
+						</frame>
+					</frame>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="9" y="700" width="510" height="6" uuid="cbd465b0-d7d8-43a1-96e3-e3c0d38c78e7">
+						<property name="local_mesure_unity" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="0" y="0" width="510" height="6" uuid="dca18c85-1731-419d-975b-8c114ddb7e5b">
+							<property name="local_mesure_unitx" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Left" markup="styled">
+							<font fontName="Times New Roman" size="12" isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA["\nБанктен / От Банка: _________________ " + $F{MANAGER_FIO} + "\n\nҚарыз алушыдан / От Заемщика:  _________________ " + $F{ZAM_FIO} + "\n" + ($F{SOZ_COUNT}.intValue() > 0 ? " \n" + $F{FIOB_1_I} : " ")]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</summary>
+</jasperReport>

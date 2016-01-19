@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-09-01T17:13:25 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PROC_PERS_INFO_CONSENT_ID" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="4821f01e-f7c6-48da-a5a2-2e68c1b7d8b5">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[--Исп: Пилипенко Е.В
+ --Дата: 08.05.2015
+ -- Назначение: СОГЛАСИЕ НА СБОР И ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ
+ 
+ select
+ 
+  dc.last_name ||' '|| dc.first_name ||' '|| nvl(dc.middle_name,' ') /*ФИО клиента!!*/,
+  to_char(dc.birthday,'dd.mm.yyyy') /*дата рождения!!*/
+  || ',  ' || nvl(rco1.caption,' ') /*место рождения!!*/
+  || ',  ' || dc.iin /*Иин !!*/,
+(case when is_real_address = 1 then get_address(dc.address_id) else get_address(dc.real_address_id) end)  as addr -- Адрес по мету прописки !!
+ ,   nvl(up.POSITION,' ') || ' '  ||nvl (up.lastname,' ') || ' ' || substr(nvl(up.firstname,' '),1,1) || '. '||substr(nvl(up.middle_name,' '),1,1) as FIO_mangr,
+  ct.caption || ' № ' || dc.CARD_NUMBER /*№ уд. личности !!*/
+  || ' от ' || to_char(dc.CARD_ISSUE_DATE,'dd.mm.yyyy') || ' выдано  ' || cb.caption --данные о документе уд. личность
+ 
+   from doc_cl        dc
+   left join USER_PROFILE  up on dc.user_created = up.LOGIN
+   left join USER_PROFILE  up1 on up.manager_user_id = up1.id
+   left join ADDRESSES     aa on dc.ADDRESS_ID = aa.id
+   left join ref_country   rco on aa.country_id = rco.id
+   left join ref_country   rco1 on dc.Birth_Place_Id = rco1.id
+   left join ref_city      rc   on aa.city_id = rc.id
+   left join REF_BRANCH    rb   on up.branch_id = rb.id
+   left join REF_CARD_TYPE ct   on dc.CARD_TYPE_ID = ct.id
+   left join REF_CARD_BY   cb   on dc.CARD_BY_ID = cb.id
+
+ 
+  where
+ 
+ dc.id= $P{Идентификатор}]]>
+	</queryString>
+	<field name="DC.LAST_NAME||&apos;&apos;||DC.FIRST_NAME||&apos;&apos;||NVL(DC.MIDDLE_NAME,&apos;&apos;)/*ФИОКЛИЕНТА!!*/" class="java.lang.String"/>
+	<field name="TO_CHAR(DC.BIRTHDAY,&apos;DD.MM.YYYY&apos;)/*ДАТАРОЖДЕНИЯ!!*/||&apos;,&apos;||NVL(RCO1.CAPTION,&apos;&apos;)/*МЕСТОРОЖДЕНИЯ!!*/||&apos;,&apos;||DC.IIN/*ИИН!!*/" class="java.lang.String"/>
+	<field name="ADDR" class="java.lang.String"/>
+	<field name="FIO_MANGR" class="java.lang.String"/>
+	<field name="CT.CAPTION||&apos;№&apos;||DC.CARD_NUMBER/*№УД.ЛИЧНОСТИ!!*/||&apos;ОТ&apos;||TO_CHAR(DC.CARD_ISSUE_DATE,&apos;DD.MM.YYYY&apos;)||&apos;ВЫДАНО&apos;||CB.CAPTION--ДАННЫЕОДОКУМЕНТЕУД.ЛИЧНОСТЬ" class="java.lang.String"/>
+	<detail>
+		<band height="821" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="100" y="97" width="400" height="25" uuid="2738eb34-1983-4676-85b8-bc40e4d95bf5">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[СОГЛАСИЕ НА СБОР И ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ]]></text>
+			</staticText>
+			<frame>
+				<reportElement positionType="Float" x="10" y="137" width="550" height="32" uuid="6edd6f38-8e12-432c-83d3-cc2fec4a2119"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="22" width="550" height="10" uuid="d51c52aa-05b4-46e2-aa75-a0fc94a3383a">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(фамилия, имя, отчество (если имеется),]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="550" height="22" uuid="d18142f0-3664-443e-b5dc-4345aa3dc547">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Я, "+$F{DC.LAST_NAME||''||DC.FIRST_NAME||''||NVL(DC.MIDDLE_NAME,'')/*ФИОКЛИЕНТА!!*/}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="187" width="550" height="30" uuid="7641355d-2d58-40e9-aee2-cf0b8a7f678c"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="15" width="550" height="15" uuid="078c128c-dd73-4330-97d9-c66db6014b3c">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(дата и место рождения, ИИН)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="550" height="15" uuid="339711d2-d2bc-4aae-bc7b-30945126c159">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TO_CHAR(DC.BIRTHDAY,'DD.MM.YYYY')/*ДАТАРОЖДЕНИЯ!!*/||','||NVL(RCO1.CAPTION,'')/*МЕСТОРОЖДЕНИЯ!!*/||','||DC.IIN/*ИИН!!*/}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="236" width="550" height="27" uuid="17e99e04-78e7-4639-92a6-7d05d0a0b0c8"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="1" width="150" height="15" uuid="7130770b-c321-43a6-aff2-63b4d051d3de">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<text><![CDATA[проживающий/ая по адресу:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="150" y="17" width="399" height="10" uuid="a960bf81-3595-4e70-a12e-f1eed8ecac1a">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(место жительства)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="150" y="0" width="399" height="17" uuid="8d14dbeb-b783-48f6-83c7-a7b50cc16565"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ADDR}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="277" width="548" height="50" uuid="8662220b-7fec-422f-bde3-09710528df9b"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="30" width="548" height="20" uuid="c25408ba-6341-490c-85c0-d12d487eb41d">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(данные документа, удостоверяющего личность №_______, дата и орган выдачи___________)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="548" height="30" uuid="aeec293b-cbb7-45a8-8b80-5032f6bdd7b9"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{CT.CAPTION||'№'||DC.CARD_NUMBER/*№УД.ЛИЧНОСТИ!!*/||'ОТ'||TO_CHAR(DC.CARD_ISSUE_DATE,'DD.MM.YYYY')||'ВЫДАНО'||CB.CAPTION--ДАННЫЕОДОКУМЕНТЕУД.ЛИЧНОСТЬ}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="357" width="548" height="60" uuid="6ed4d0b1-6318-4c68-8449-bad516450eb8"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" x="1" y="0" width="547" height="60" uuid="af75e75b-26a6-456d-94d7-623ebdf64935"/>
+					<textElement>
+						<font fontName="Times New Roman" size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["в соответствии с Законом РК от 21 мая 2013 года № 94-V «О персональных  данных и их защите» (далее – Закон) предоставляю АО ДБ  \"Альфа-Банк\" согласие на сбор и обработку моих персональных данных, с целью оказания  АО  ДБ  “Альфа-Банк” банковских услуг, а также на трансграничную передачу моих персональных данных, в соответствии со ст.16 Закона."]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="450" width="548" height="120" uuid="f842db56-74ed-445d-bbda-5ac6c3f39e57"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="50" height="25" uuid="9dcd933d-e029-4ed1-ae8b-5fbad793017c">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<text><![CDATA[Ф.И.О.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="50" y="20" width="498" height="15" uuid="32d90576-1daa-4673-8b7a-a6bd3d735a0f">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(собственноручно указывается фамилия, имя и отчество (при наличии)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="50" y="0" width="498" height="20" uuid="475f55dc-dc16-407c-83d2-cca1f79fcb3f"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="400" y="36" width="148" height="20" uuid="fcd53213-f18f-4c30-ad4e-7c3a559a660b"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="400" y="56" width="148" height="15" uuid="04998fdb-ab98-4375-b21f-cfff038ca307">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(подпись)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="400" y="71" width="148" height="20" uuid="28a2203c-e2c3-4115-ac64-ffe681df715a"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="400" y="92" width="148" height="15" uuid="aa8175a9-fe64-4559-b776-1bf3a459756c">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(дата)]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="573" width="549" height="51" uuid="5d88edec-9755-4d21-9c20-5872fe38b52f"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="36" width="548" height="15" uuid="cfa03987-938f-4d9d-9d02-94cd8f619307">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(указывается фамилия, инициалы представителя Банка, должность, проставляется  подпись)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="21" width="546" height="5" uuid="407e55f5-7142-4a73-bd77-fcfc33eb7afa"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" x="0" y="4" width="549" height="15" uuid="58eec5e1-3535-4786-b50f-efaabe287466"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle" markup="styled">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Настоящее Согласие принято АО ДБ «Альфа-Банк», в лице\n" + $F{FIO_MANGR}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="417" width="547" height="30" uuid="8a4a9c05-44aa-4ff1-927a-a1d31b1ce54e"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="547" height="30" uuid="16b28bdd-a5d5-47f5-815f-96aa2a5b5672"/>
+					<textElement>
+						<font fontName="Times New Roman" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[              Текст настоящего согласия мной прочитан, дополнений и возражений не имею, в подтверждение чего ставлю свою подпись.]]></text>
+				</staticText>
+			</frame>
+			<textField>
+				<reportElement x="360" y="10" width="204" height="50" uuid="b5c4f5f9-44e0-4cf4-9c32-42d2925225a4"/>
+				<textElement textAlignment="Right" markup="styled">
+					<font fontName="Times New Roman" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Приложение № 1\nк Приказу № ___ от  «__» _____________  _________г."]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

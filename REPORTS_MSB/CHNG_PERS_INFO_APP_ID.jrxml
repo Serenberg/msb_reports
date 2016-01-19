@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.4.final using JasperReports Library version 6.0.4  -->
+<!-- 2015-08-16T20:33:37 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CHNG_PERS_INFO_APP_ID" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="e3261768-1d0c-4cdf-9c76-edfb9e4aa311">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MSB_USER"/>
+	<parameter name="Идентификатор" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[select dc.last_name || ' '||dc.first_name ||' '|| dc.middle_name -- ФИО клиента -- 000
+       
+      ,
+       dc.Iin --ИИН  000
+       
+      ,
+       dc.MOBILE_PHONE1, -- моб 1     
+       up.lastname ||' '|| up.firstname as k_man, -- k_man
+       --up1.lastname ||' '|| up1.firstname as boss_k_man, -- старший KM
+       up.POSITION, -- Должность старшего КМ
+       
+       dc.CARD_NUMBER /*№ уд. личности !!*/
+       || ', ' ||  to_char(dc.CARD_ISSUE_DATE ,'dd.mm.yyyy')|| ', ' || to_char(dc.CARD_END_DATE,'dd.mm.yyyy') || ' ,' ||
+       cb.caption --данные о документе уд. личность 
+      , 
+       speller.get_date_doc_format(sysdate)
+
+-- 16 этап
+  from doc_cl dc
+
+  LEFT JOIN (select *
+                from (select a.assignee_, b.text_,a.end_time_, row_number() over (partition by b.text_ order by b.text_,a.end_time_ ) as rw
+                        from act_hi_taskinst a
+                          inner join act_ru_variable b on b.proc_inst_id_ = a.proc_inst_id_
+                       where b.name_ = 'recordId'
+                         and a.task_def_key_ = 'STAGE_NUMBER_190'
+                        order by b.text_,a.end_time_ desc) w
+               where w.rw = 1) bb
+
+    on to_char(dc.id) = bb.text_
+  
+    LEFT JOIN USER_PROFILE up on bb.assignee_ = up.login 
+    LEFT JOIN USER_PROFILE up1 on up.MANAGER_USER_ID = up1.id
+    LEFT JOIN REF_CARD_BY  cb on dc.CARD_BY_ID = cb.id
+where dc.id= $P{Идентификатор}]]>
+	</queryString>
+	<field name="IIN" class="java.lang.String"/>
+	<field name="MOBILE_PHONE1" class="java.lang.String"/>
+	<field name="POSITION" class="java.lang.String"/>
+	<field name="DC.LAST_NAME||&apos;&apos;||DC.FIRST_NAME||&apos;&apos;||DC.MIDDLE_NAME--ФИОКЛИЕНТА--000" class="java.lang.String"/>
+	<field name="DC.CARD_NUMBER/*№УД.ЛИЧНОСТИ!!*/||&apos;,&apos;||TO_CHAR(DC.CARD_ISSUE_DATE,&apos;DD.MM.YYYY&apos;)||&apos;,&apos;||TO_CHAR(DC.CARD_END_DATE,&apos;DD.MM.YYYY&apos;)||&apos;,&apos;||CB.CAPTION--ДАННЫЕОДОКУМЕНТЕУД.ЛИЧНОСТЬ" class="java.lang.String"/>
+	<field name="SPELLER.GET_DATE_DOC_FORMAT(SYSDATE)--16ЭТАП" class="java.lang.String"/>
+	<field name="K_MAN" class="java.lang.String"/>
+	<detail>
+		<band height="801" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<image>
+				<reportElement x="1" y="2" width="185" height="50" uuid="73f7c786-da32-4b57-a734-4c3d4c2cbb61"/>
+				<imageExpression><![CDATA["/printForms/alfa.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="290" y="80" width="270" height="15" uuid="afa00f2a-bd80-4cf5-b255-f1b9725a0467">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[«Альфа-Банк» ЕБ АҚ /АО ДБ «Альфа-Банк»]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="260" width="510" height="20" uuid="b5864e65-7933-43cc-919d-944b8735a128">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ө Т І Н І Ш    /   З А Я В Л Е Н И Е]]></text>
+			</staticText>
+			<frame>
+				<reportElement positionType="Float" x="319" y="100" width="241" height="16" uuid="32d7dd2a-2624-4265-9c4e-9cd6d281d9a7"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="79" y="0" width="162" height="16" uuid="95823829-5ab1-43ee-99da-ece953b307f0"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="styled">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DC.LAST_NAME||''||DC.FIRST_NAME||''||DC.MIDDLE_NAME--ФИОКЛИЕНТА--000}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="79" height="16" uuid="581d4ed3-9293-48e8-811c-14f252c6dcee"/>
+					<box>
+						<bottomPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA["кімге/ г-ну (-же)"]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="359" y="116" width="201" height="15" uuid="99753113-18a1-4f95-a8b1-8347d76477ec"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="201" height="15" uuid="3d9511d6-4b23-4e85-8fa4-b35e7dd2ffa6">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(полное Ф.И.О.)]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="325" y="170" width="235" height="30" uuid="f927752e-4c5e-4a8e-94b6-3a48396450ae"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="15" width="235" height="15" uuid="bafb2ee7-d9b5-4b68-a46e-11d0da4336c9">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(жеке басын куәландыратын құжаттың деректері/ данные документа, удостоверяющего личность)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="235" height="15" isPrintInFirstWholeBand="true" uuid="2d14ba5f-0d4d-4f31-b4ff-21c89d9aa3bf"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DC.CARD_NUMBER/*№УД.ЛИЧНОСТИ!!*/||','||TO_CHAR(DC.CARD_ISSUE_DATE,'DD.MM.YYYY')||','||TO_CHAR(DC.CARD_END_DATE,'DD.MM.YYYY')||','||CB.CAPTION--ДАННЫЕОДОКУМЕНТЕУД.ЛИЧНОСТЬ}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="325" y="215" width="235" height="30" uuid="ce1f5d6b-1084-4a3e-928a-215fc70e85b7"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="14" width="235" height="15" uuid="7fce6f82-0880-4ad6-870f-dc256224fd4a">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(байланйс деректері/ контактные  данные)]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="234" height="15" uuid="a4a54c4a-6c9e-4ea2-b10d-c143f874735b">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Times New Roman" size="9"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{MOBILE_PHONE1}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="600" width="550" height="35" uuid="5aefdfb2-8d94-401a-b549-b7d1640a7da4"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="15" width="550" height="20" uuid="0f9e0148-88ab-40e9-b508-8d4ad3f5c7c7">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(Осы Өтінішті қабылдаған жұмысшының қызметі, аты-жөні, қолы және мөртабаны/Должность, ФИО, подпись и штамп работника, принявшего настоящее Заявление)
+]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="550" height="15" uuid="aa8c9e64-b8f5-464c-8510-99d0779118ac"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($F{POSITION}!= null ? $F{POSITION}+", " : "")+$F{K_MAN}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="292" width="554" height="218" uuid="37e5022c-e6eb-4168-8d48-40797288aca0"/>
+				<frame>
+					<reportElement positionType="Float" x="0" y="0" width="554" height="106" uuid="bb3d5bdc-78a2-44c1-b81b-27a0313eae78"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="554" height="106" uuid="cd1d98c3-ba5c-4c99-a264-105860ef039c"/>
+						<textElement markup="html">
+							<font fontName="Times New Roman" size="12"/>
+						</textElement>
+						<textFieldExpression><![CDATA["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ауыстыруыма байланысты, менің банктік шоттарыма сәйкесінше өзгерістер енгізуіңізді сұраймын Прошу  внести соответствующие изменения по моим банковским счетам в связи со сменой:<br>"+
+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;азаматтық / гражданства;<br>"+
+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;тегі, аты немесе әкесінің аты / фамилии, имени или отчества;<br>"+
+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;тіркелу немесе нақты мекенжайлары/байланыс деректері /адреса регистрации или фактического местожительства/контактных данных;<br>"+
+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;жеке басын куәландыратын құжаттың деректері/данные документа, удостоверяющие личность.<br>"]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="9" y="5" width="6" height="6" uuid="fa5d4409-ca3e-43d8-a860-832c458be1d0">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box leftPadding="3">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textElement>
+							<font size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[""]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="9" y="34" width="6" height="6" uuid="2f505aa9-bbca-4992-91c3-7a422b0f3c50">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box leftPadding="3">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textElement>
+							<font size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[""]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="9" y="47" width="6" height="6" uuid="9111c291-aaf9-46cc-b16e-081ff47758b6">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box leftPadding="3">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textElement>
+							<font size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[""]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="9" y="60" width="6" height="6" uuid="6835f77f-d539-4888-ad53-99ff14a92a01">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box leftPadding="3">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textElement>
+							<font size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[""]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="9" y="89" width="6" height="6" uuid="652ae7db-4c24-4642-9e00-561806f5f3ba">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</reportElement>
+						<box leftPadding="3">
+							<topPen lineWidth="1.0"/>
+							<leftPen lineWidth="1.0"/>
+							<bottomPen lineWidth="1.0"/>
+							<rightPen lineWidth="1.0"/>
+						</box>
+						<textElement>
+							<font size="9"/>
+						</textElement>
+						<textFieldExpression><![CDATA[""]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="108" width="554" height="30" uuid="f3459739-f0c8-45dd-bbaf-7fba549025dc"/>
+					<textField>
+						<reportElement x="0" y="0" width="554" height="30" uuid="ecc9d750-1765-4cbc-b16b-fc0b36177e19"/>
+						<textElement markup="html">
+							<font fontName="Times New Roman" size="12" isItalic="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Растаушы құжаттардың көшірмелері жалғанады/Копии подтверждающих документов прилагаются."]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="148" width="552" height="70" uuid="3db2742a-dd46-4ba8-88da-832798db88c8"/>
+					<textField>
+						<reportElement x="0" y="0" width="552" height="70" uuid="b50391e4-93e0-449c-9c32-7ae401641793"/>
+						<textElement markup="html">
+							<font fontName="Times New Roman" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Клиент ол туралы жеке мәліметтерді жинау және өңдеу Келісімінің мәтінімен және талаптарымен танысты және келіседі (клиенттің жеке мәліметтерін жинау және өңдеу Келісімінің пішіні «Альфа-Банк» ЕБ АҚ ресми ғаламтор ресурсында мына мекенжай бойынша www.alfabank.kz және «Альфа»Банк» ЕБ АҚ жайында орналастырылған. Осы Өтінішке қол қоя отырып, Клиент «Альфа-Банк» ЕБ АҚ жеке мәліметтерді жинау және өңдеуге өзінің келісімін береді./Клиент ознакомлен и согласен с текстом и условиями Согласия на сбор и обработку персональных данных клиента (форма Согласия на сбор и обработку персональных данных клиента размещена на официальном интернет ресурсе  АО ДБ «Альфа-Банк»  по адресу: www.alfabank.kz и в помещении АО ДБ «Альфа-Банк»). Подписанием настоящего Заявления, Клиент предоставляет АО ДБ «Альфа-Банк» свое согласие на сбор и обработку персональных данных."]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+			<frame>
+				<reportElement x="10" y="512" width="551" height="58" uuid="8e94c1a6-e5d4-441d-9a3d-607011c053fd"/>
+				<frame>
+					<reportElement x="0" y="0" width="551" height="15" uuid="c434d8bc-c591-4aa6-aa64-62bbde0b2012"/>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="551" height="15" uuid="f5506fb9-edf0-45f9-bca9-28d19f26a465">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement verticalAlignment="Middle" markup="html">
+							<font fontName="Times New Roman" size="12" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA["<b>Күні / Дата</b>   "+$F{SPELLER.GET_DATE_DOC_FORMAT(SYSDATE)--16ЭТАП}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="15" width="551" height="43" uuid="3a2c8bac-798f-49e3-b933-1a46096eae27"/>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="23" width="551" height="20" uuid="9206a2e3-2e4e-4052-842f-0afe2264d5bd">
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<textElement textAlignment="Center">
+							<font fontName="Times New Roman" size="10" isItalic="true"/>
+						</textElement>
+						<text><![CDATA[қолы/ подпись]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="550" height="22" uuid="82465707-2151-4690-a0ef-aa5335737020"/>
+						<box>
+							<bottomPen lineWidth="1.0"/>
+						</box>
+					</textField>
+				</frame>
+			</frame>
+			<frame>
+				<reportElement x="10" y="583" width="550" height="15" uuid="08abd057-5335-4a64-bace-6472183d7a5c"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="550" height="15" uuid="a6b9f070-2c92-4ac9-8e88-30abad1d3e60">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[БАНКТІҢ БЕЛГІЛЕРІ / ОТМЕТКИ БАНКА]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="10" y="650" width="349" height="16" uuid="9458c765-8435-4ea5-b0e2-de3bd761cb6c"/>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="99" height="16" uuid="c3dc6d6d-41d7-4062-9611-fcd9f6acf574"/>
+					<textElement markup="html">
+						<font fontName="Times New Roman" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Бақылаушы/ Контролер"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="90" y="0" width="259" height="16" uuid="a2f0afd7-6bbe-4e07-9f13-9e2e3b487b63"/>
+					<textElement markup="html">
+						<font fontName="Times New Roman" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA["_____________________________________________"]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="319" y="133" width="241" height="16" uuid="e4b1fd9f-a2dc-45c5-a538-2ed730287916"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="90" y="0" width="151" height="16" uuid="d43193f5-0404-426c-8973-09ce1b1028bc"/>
+					<box>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="styled">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="0" width="90" height="16" uuid="ac659a60-5ae8-44e7-800a-03e56f0e80fe"/>
+					<box>
+						<bottomPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="styled">
+						<font fontName="Times New Roman" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA["кімнен/ от г-на (-жи)"]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="359" y="149" width="201" height="15" uuid="3fa5ec5e-79ba-4e11-ad44-d852b633e6be"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="201" height="15" uuid="a2fb75a1-b5a0-431a-b368-812d5e939aff">
+						<property name="local_mesure_unitwidth" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font fontName="Times New Roman" size="8" isItalic="true"/>
+					</textElement>
+					<text><![CDATA[(полное Ф.И.О.)]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

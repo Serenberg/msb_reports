@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
+<!-- 2015-09-02T11:54:22 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="{REP_CNT_SUM_LOAN_BR} Консолидированный отчет по сумме и количеству в разрезе по секторам и филиалам" pageWidth="700" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="660" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="2106212f-6906-4400-a8b6-28683969a28f">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="msbTest"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<parameter name="Дата с" class="java.util.Date"/>
+	<parameter name="Дата по" class="java.util.Date"/>
+	<queryString language="SQL">
+		<![CDATA[select row_number() over (order by t.branch, t.FIOKM) as rn,  t.branch, t.FIOKM, sum(t.cr_sum_approved), sum(t.cntMn)
+from
+(select rb.caption as branch --Филиал
+      ,
+       up.lastname || ' ' || nvl(up.firstname, ' ') || ' ' || nvl(up.middle_name, ' ') as FIOKM -- КМ
+            ,
+      sum(case
+      	when dc.is_refinancing > 0 
+      	then dc.sum_cr_refinanc
+      	else 
+      	dc.cr_sum_approved
+      	end
+      )    as cr_sum_approved --одобренная сумма
+      ,
+      count(dc.id) as cntMn
+      
+       from doc_cl dc
+       left join USER_PROFILE up on dc.user_created = up.LOGIN      
+       left join reg_cr_abis b on b.id = dc.reg_cr_abis_id
+       left join ACT_HI_VARINST AHV on dc.group_reference = AHV.Proc_Inst_Id_ and AHV.NAME_ = 'description'
+        left join REF_BRANCH rb on up.branch_id = rb.id
+        left join ACT_HI_VARINST AHV on dc.group_reference = AHV.Proc_Inst_Id_ and AHV.NAME_ = 'description'
+       left join WS_LOG wl on wl.doc_cl_id = dc.id and wl.service = 'CONFIRM_CREDIT' and wl.hi_ws_service_call_id is not null
+       join HI_WS_SERVICE_CALL ws on wl.hi_ws_service_call_id = ws.id and ws.response like '%<ns2:result>TRUE</ns2:result>%' and ws.request like '%<loan:loanAgreementId>'||b.agreement_id||'</loan:loanAgreementId>%'
+
+ where   b.loan_fromdate is not null and
+  ws.response_date >=  $P{Дата с}
+ and dc.CONCLUSION_KA_ID = 'POSITIVE' -- выданные займы
+ and ws.response_date <=   $P{Дата по}  + 1 
+ group by rb.caption, up.lastname, up.firstname, up.middle_name, dc.is_refinancing, dc.id
+ 
+ union all
+ 
+ select rb.caption as branch --Филиал
+      ,
+       up.lastname || ' ' || nvl(up.firstname, ' ') || ' ' || nvl(up.middle_name, ' ') as FIOKM -- КМ
+            ,
+      sum(case
+      	when dc.is_refinancing > 0 
+      	then (dc.cr_sum_approved - dc.sum_cr_refinanc)
+      	else 
+      	dc.cr_sum_approved
+      	end
+      )    as cr_sum_approved --одобренная сумма
+      ,
+      0 as cntMn
+
+
+
+       from doc_cl dc
+       left join USER_PROFILE up on dc.user_created = up.LOGIN
+       left join reg_cr_abis b on b.id = dc.reg_cr_abis2_id
+       left join ACT_HI_VARINST AHV on dc.group_reference = AHV.Proc_Inst_Id_ and AHV.NAME_ = 'description'     
+		left join REF_BRANCH rb on up.branch_id = rb.id
+		left join WS_LOG wl on wl.doc_cl_id = dc.id and wl.service = 'CONFIRM_CREDIT' and wl.hi_ws_service_call_id is not null
+       join HI_WS_SERVICE_CALL ws on wl.hi_ws_service_call_id = ws.id and ws.response like '%<ns2:result>TRUE</ns2:result>%' and ws.request like '%<loan:loanAgreementId>'||b.agreement_id||'</loan:loanAgreementId>%'
+       
+ where b.loan_fromdate is not null and dc.is_refinancing > 0
+ and  ws.response_date >=  $P{Дата с}
+ and dc.CONCLUSION_KA_ID = 'POSITIVE' -- выданные займы
+ and  ws.response_date <=   $P{Дата по} + 1
+ group by rb.caption, up.lastname, up.firstname, up.middle_name, dc.is_refinancing
+ ) t
+ group by  t.branch, t.FIOKM]]>
+	</queryString>
+	<field name="RN" class="java.math.BigDecimal"/>
+	<field name="BRANCH" class="java.lang.String"/>
+	<field name="FIOKM" class="java.lang.String"/>
+	<field name="SUM(T.CR_SUM_APPROVED)" class="java.math.BigDecimal"/>
+	<field name="SUM(T.CNTMN)" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="70" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="0" y="0" width="660" height="30" uuid="ef35184e-8cd5-4724-afa0-1a41e82bb734"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+					<font fontName="Times New Roman" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Консолидированный отчет по сумме и количеству в разрезе по секторам и филиалам за период с "+DATEFORMAT($P{Дата с},"dd.MM.yyyy")+" г."+" по "+DATEFORMAT($P{Дата по},"dd.MM.yyyy")+" г."]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="117" y="31" width="181" height="30" uuid="c876f2ed-7d4a-4f86-9271-26c71d31b0c2"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Менеджер]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="31" width="100" height="30" uuid="e389f209-6141-446b-9836-c81d0910b09a"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[сектор/филиал]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="298" y="31" width="100" height="30" uuid="49b97348-ef40-43ac-9136-2fdafd72bdfb"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Сумма]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="398" y="31" width="100" height="30" uuid="d68c036d-3c48-4e33-81ef-e2f3cb969487"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Количество]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-11" y="31" width="28" height="30" uuid="c276c586-0d5b-45cd-b086-756d86acdde5"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[№]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<frame>
+				<reportElement positionType="Float" x="-11" y="0" width="680" height="15" uuid="93cd7c7c-8904-4aef-b388-d69247313bdb"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="128" y="0" width="181" height="15" uuid="4ebaa7b7-2adb-4981-989d-434375fab125">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12" isBold="false"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FIOKM}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="28" y="0" width="100" height="15" uuid="2e77053f-2f8e-4995-bd2d-13867a62e42d">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12" isBold="false"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{BRANCH}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="409" y="0" width="100" height="15" uuid="426d35e2-4685-431e-8008-9c1a7e8ac663">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12" isBold="false"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{SUM(T.CNTMN)}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#-)" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="309" y="0" width="100" height="15" uuid="c26b309b-a491-4ac4-b66e-46ee8a315796">
+						<property name="local_mesure_unitheight" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12" isBold="false"/>
+						<paragraph leftIndent="3"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{SUM(T.CR_SUM_APPROVED)}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="28" height="15" uuid="3c6f7bce-bdca-4490-98fc-2fefb85c2064"/>
+					<box>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{RN}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

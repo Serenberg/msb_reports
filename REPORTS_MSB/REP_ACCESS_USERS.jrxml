@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.4.final using JasperReports Library version 6.0.4  -->
+<!-- 2015-08-08T16:18:52 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="{REP_ACCESS_USERS} Отчет выданных доступов пользователям" pageWidth="1100" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="1060" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="356f2a26-5a70-49ed-aa1a-25d6c66a01b1">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MSB_USER"/>
+	<parameter name="Дата с" class="java.util.Date"/>
+	<parameter name="Дата по" class="java.util.Date"/>
+	<queryString language="SQL">
+		<![CDATA[--Дата: 27/07/15
+--Исп: Пилипенко Е.В
+--Назначение:  Отчет выданных доступов пользователям
+select row_number() over(order by aa.username) as rn, aa.*
+  from (
+        -- Завершить задачу
+        select nvl( to_nchar(a.assignee_),' ') as username -- пользователь запустивший
+               ,
+               nvl( case
+                  when substr(a.act_id_, 1, 5) = 'STAGE' then
+                   to_nchar('Кнопка <Завершить задачу>')
+                end,' ') as obj,
+               nvl(count(1),0) as stat,
+               nvl( /*LISTAGG(u.caption, ', ') WITHIN GROUP(order by u.caption)*/u.caption, ' ') as role_list -- группа доступа (роль) , сделано для того, так как один пользователь может входить в разныне роли 
+        
+          from act_hi_actinst             a,
+                act_re_procdef             p,
+                VW_USER_PROFILE_PERMISSION v,
+                USER_PERMISSION            u
+         where a.proc_def_id_ = p.id_
+           and u.ID = v.UPE_ID
+           and v.UPR_LOGIN = a.assignee_
+           and u.caption like 'Роль:%'
+           and p.key_ like 'MSB_Credit_Process'
+           and a.act_type_ = 'userTask' -- 
+           and a.end_time_ is not null
+           and a.START_TIME_ >=  $P{Дата с} 
+           and a.end_time_ <= $P{Дата по} 
+        
+         group by to_nchar(a.assignee_),
+                   u.caption,
+                   case
+                     when substr(a.act_id_, 1, 5) = 'STAGE' then
+                      to_nchar('Кнопка <Завершить задачу>')
+                   end
+        union all
+        -- Запустить процесс
+        select 
+        nvl(to_nchar(a.start_user_id_),' ') as username -- пользователь запустивший
+              ,
+              nvl( to_nchar('Кнопа <Запустить процесс МСБ>'),' ') as obj, -- наименование объекта 
+             nvl( count(1),0) as stat,
+              nvl( /*LISTAGG(u.caption, ', ') WITHIN GROUP(order by u.caption)*/u.caption,' ') as role_list -- группа доступа (роль) , сделано для того, так как один пользователь может входить в разныне роли 
+        
+          from act_hi_procinst            a,
+               act_re_procdef             p,
+               VW_USER_PROFILE_PERMISSION v,
+               USER_PERMISSION            u
+         where a.proc_def_id_ = p.id_
+           and u.ID = v.UPE_ID
+           and v.UPR_LOGIN = a.START_USER_ID_
+           and u.caption like 'Роль:%'
+           and p.key_ like 'MSB_Credit_Process'
+           and a.START_TIME_ >=   $P{Дата с} 
+           and a.end_time_ <= $P{Дата по} 
+        
+         group by to_nchar(a.start_user_id_),
+                  u.caption,
+                  to_nchar('Кнопа <Запустить процесс МСБ>')
+        
+        union all
+        
+        -- Отчеты
+        select
+        --row_number() over (order by to_nchar(b.started_by_user)) as rn,
+         nvl(to_nchar(b.started_by_user),' ') as username -- пользователь запустивший
+        ,
+         nvl(to_nchar(b.task_name),' ') as obj, -- наименование отчета
+         nvl(count(1),0) as stat,
+         nvl(/*LISTAGG(u.caption, ', ') WITHIN GROUP(order by u.caption)*/u.caption,' ') as role_list -- группа доступа (роль) , сделано для того, так как один пользователь может входить в разныне роли 
+        
+          from PRINT_TASK_RESULT          r,
+               background_task            b,
+               VW_USER_PROFILE_PERMISSION v,
+               USER_PERMISSION            u
+         where r.background_task_id = b.id
+           and u.ID = v.UPE_ID
+           and v.UPR_LOGIN = b.started_by_user
+           and u.caption like 'Роль:%'
+           and b.task_name is not null
+          and b.START_TIME >=  $P{Дата с} 
+          and b.FINISH_TIME <= $P{Дата по} 
+         group by to_nchar(b.started_by_user),u.caption, to_nchar(b.task_name)
+        
+        union all
+        -- кнопка "Получить"
+        select nvl(to_nchar(l.user_login),' ') as username, -- пользователь
+               nvl(to_nchar('Кнопа <Получить новую заявку>'),' ') as obj,
+               nvl(count(1),0) as stat, -- статистика
+               nvl(/*LISTAGG(u.caption, ', ') WITHIN GROUP(order by u.caption)*/ u.caption,' ') as role_list -- группа доступа (роль)
+        -- объект
+        
+          from LOG_USER_ACTIONS           l,
+               VW_USER_PROFILE_PERMISSION v,
+               USER_PERMISSION            u
+         where u.ID = v.UPE_ID
+           and v.UPR_LOGIN = l.user_login
+           and u.caption like 'Роль:%'
+           and l.action = 'BUTTON_CLAIM_FREE_TASK' --  наименование события для "Получить"  ь   
+           and l.EVENT_DATE >=  $P{Дата с} 
+           and l.event_date < $P{Дата по} 
+         group by to_nchar(l.user_login),
+                  u.caption,
+                  to_nchar('Кнопа <Получить новую заявку>')) aa
+
+ order by aa.username]]>
+	</queryString>
+	<field name="RN" class="java.math.BigDecimal"/>
+	<field name="USERNAME" class="java.lang.String"/>
+	<field name="OBJ" class="java.lang.String"/>
+	<field name="STAT" class="java.math.BigDecimal"/>
+	<field name="ROLE_LIST" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="86" splitType="Stretch">
+			<staticText>
+				<reportElement x="193" y="1" width="555" height="30" uuid="4cb9192c-76aa-48a6-9c53-709793dd30e2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Отчет выданных доступов пользователям с ]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="339" y="50" width="100" height="30" uuid="ccdddc4a-8f2d-4e28-ba04-728a22b0d5d8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Дата с}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="469" y="50" width="30" height="30" uuid="88d54904-ec6d-43ea-bb17-9bbb5c4e26c4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[по]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="499" y="50" width="100" height="30" uuid="1874ecd2-052c-4d18-ba04-7bf103dd3551">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Дата по}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="439" y="50" width="30" height="30" uuid="48bab1b8-8fb9-4ab3-8f0f-9bfadb1efe78">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[г.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="599" y="50" width="30" height="30" uuid="9f8fe43e-979a-43c5-ba38-8f444c3ca715">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[г.]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="30" width="32" height="30" uuid="90458e6b-4dac-4b68-af4c-aec6d6c443ae">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="local_mesure_unity" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[№]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="32" y="30" width="487" height="30" uuid="71e20f61-a76b-414a-b142-3f1968fa16d2"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Права доступа]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="519" y="30" width="260" height="30" uuid="e0e7a571-7c68-4f23-b92c-f89bd1a69e62"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Группы доступа]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="779" y="30" width="170" height="30" uuid="ab95d365-f9bc-462e-931f-11b821edc243"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Пользователь]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="949" y="30" width="78" height="30" uuid="b02e3944-45a1-44f8-be28-d952df3dbce1">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Статистика]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<frame>
+				<reportElement x="0" y="-1" width="1027" height="15" uuid="603131f9-3aed-45dd-8f82-e86925fdbbd8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<frame>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="32" height="15" uuid="62aff2b4-3a2f-4ce4-beb0-30756619080b"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="32" height="15" uuid="6c01c6f6-3c28-4864-a14d-4a058f641b98">
+							<property name="local_mesure_unitheight" value="pixel"/>
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{RN}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="32" y="0" width="487" height="15" uuid="cdad2dbb-eab7-4021-8925-8b3aa435bcb0"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="0" y="0" width="487" height="15" uuid="ba878025-1cde-4378-888f-dcdbf7a14ea9">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{OBJ}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="519" y="0" width="260" height="15" uuid="9e011b76-b670-4f15-9d4f-fe3a176c2f98"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="260" height="15" uuid="386aa43f-4e35-4ac3-ad65-eb8b1ea26669">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{ROLE_LIST}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="779" y="0" width="170" height="15" uuid="b447997a-a822-4a37-98ee-98c88a415754"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="170" height="15" uuid="91a11884-9402-42b0-b31e-f3f95f57fe23">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{USERNAME}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="949" y="0" width="78" height="15" uuid="8208c126-66de-45a0-b924-24f21ab3da3a"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="78" height="15" uuid="bd9de901-f4af-4e1d-85c0-5cb92765bcda">
+							<property name="local_mesure_unitwidth" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						</reportElement>
+						<box>
+							<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Times New Roman" size="12"/>
+							<paragraph leftIndent="3"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{STAT}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
